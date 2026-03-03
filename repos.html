@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>仓库列表 | Muimi</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="logo" href="index.html">Muimi</a>
+      <nav class="site-nav">
+        <a href="index.html">首页</a>
+        <a href="posts.html">文章</a>
+        <a class="active" href="repos.html">仓库</a>
+      </nav>
+      <button id="themeToggle" class="theme-toggle" aria-label="切换主题">
+        <span class="theme-icon" aria-hidden="true">🌙</span>
+        <span class="theme-text">深色</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container page-content">
+    <section class="page-hero">
+      <h1>GitHub 仓库</h1>
+    </section>
+
+    <section id="repoList" class="grid"></section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 2026 Muimi · <a class="card-link" href="LICENSE" target="_blank" rel="noopener noreferrer">License</a></p>
+    </div>
+  </footer>
+
+  <script src="assets/data.js"></script>
+  <script src="assets/main.js"></script>
+</body>
+</html>

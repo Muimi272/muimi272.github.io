@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Muimi | 个人博客</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="logo" href="index.html">Muimi</a>
+      <nav class="site-nav">
+        <a class="active" href="index.html">首页</a>
+        <a href="posts.html">文章</a>
+        <a href="repos.html">仓库</a>
+      </nav>
+      <button id="themeToggle" class="theme-toggle" aria-label="切换主题">
+        <span class="theme-icon" aria-hidden="true">🌙</span>
+        <span class="theme-text">深色</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container page-content">
+    <section class="hero">
+      <div class="hero-main">
+        <h1>Hi, I'm <span class="highlight">Muimi</span></h1>
+        <p>欢迎来到我的个人博客。我会在这里记录学习笔记、项目实践和生活灵感，也会把做过的小项目沉淀下来。</p>
+        <div class="button-row">
+          <a class="btn btn-primary" href="posts.html">查看文章</a>
+          <a class="btn btn-secondary" href="repos.html">查看仓库</a>
+        </div>
+      </div>
+
+      <aside class="hero-side">
+        <h2>个人介绍</h2>
+        <p>在读大学生，主要学习 Java，也会使用一些 Python、C# 和前端内容。</p>
+        <p>邮箱：<a class="card-link" href="mailto:Muimi_mail@163.com">Muimi_mail@163.com</a></p>
+        <p>GitHub：<a class="card-link" href="https://github.com/Muimi272" target="_blank" rel="noopener noreferrer">@Muimi272</a></p>
+      </aside>
+    </section>
+
+    <section class="home-block" style="margin-top: 20px;">
+      <div class="home-block-head">
+        <h2>精选文章</h2>
+      </div>
+      <div id="homeFeaturedPost"></div>
+    </section>
+
+    <section class="home-block" style="margin-top: 20px;">
+      <div class="home-block-head">
+        <h2>GitHub 仓库</h2>
+      </div>
+      <div id="homeRepoList" class="grid home-repo-grid"></div>
+    </section>
+
+    <section class="quick-add" style="margin-top: 20px;">
+      <h3>开源协议</h3>
+      <p>本博客代码遵循 <a class="card-link" href="LICENSE" target="_blank" rel="noopener noreferrer">Muimi Personal Blog License 1.0</a>。</p>
+      <p>任何人可在非商业场景免费使用；商业使用时，衍生项目必须保持开源并保留原始署名。</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 2026 Muimi · <a class="card-link" href="LICENSE" target="_blank" rel="noopener noreferrer">License</a></p>
+    </div>
+  </footer>
+
+  <script src="assets/data.js"></script>
+  <script src="assets/main.js"></script>
+</body>
+</html>
