@@ -146,7 +146,7 @@ async function renderPostList() {
           <p class="meta">${post.date}</p>
           <h2>${post.title}</h2>
           <p>${post.summary}</p>
-          <a class="card-link" href="post.html?id=${encodeURIComponent(post.id)}">阅读全文 →</a>
+          <a class="card-link" href="post.html?id=${encodeURIComponent(post.id)}">阅读全文</a>
         </article>
       `
     ).join("");
@@ -221,7 +221,7 @@ function renderRepoList() {
       <article class="card repo-card">
         <h2>${repo.name}</h2>
         <p>${repo.description || "暂无仓库描述。"}</p>
-        <a class="card-link" href="${repo.url}" target="_blank" rel="noopener noreferrer">打开 GitHub 仓库 →</a>
+        <a class="card-link" href="${repo.url}" target="_blank" rel="noopener noreferrer">打开 GitHub 仓库</a>
       </article>
     `
   ).join("");
@@ -267,7 +267,7 @@ function renderHomeRepoList() {
       <article class="card repo-compact-card">
         <h3>${repo.name}</h3>
         <p>${repo.description || "暂无仓库描述。"}</p>
-        <a class="card-link" href="${repo.url}" target="_blank" rel="noopener noreferrer">查看仓库 →</a>
+        <a class="card-link" href="${repo.url}" target="_blank" rel="noopener noreferrer">查看仓库</a>
       </article>
     `
   ).join("");
