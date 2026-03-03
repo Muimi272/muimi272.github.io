@@ -135,7 +135,6 @@ async function renderPostList() {
       postList.innerHTML = `
         <article class="card">
           <h2>未找到匹配文章</h2>
-          <p>请尝试更换关键词，或在 <code>articles/index.json</code> 中添加新文章文件路径。</p>
         </article>
       `;
       return;
@@ -241,7 +240,6 @@ async function renderHomeFeaturedPost() {
     container.innerHTML = `
       <article class="card">
         <h3>暂无文章</h3>
-        <p>请先在 articles 目录上传文章文件，并在 <code>articles/index.json</code> 中登记路径。</p>
       </article>
     `;
     return;
@@ -269,7 +267,7 @@ function renderHomeRepoList() {
       <article class="card repo-compact-card">
         <h3>${repo.name}</h3>
         <p>${repo.description || "暂无仓库描述。"}</p>
-        <a class="card-link" href="${repo.url}" target="_blank" rel="noopener noreferrer">查看仓库 ↗</a>
+        <a class="card-link" href="${repo.url}" target="_blank" rel="noopener noreferrer">查看仓库 →</a>
       </article>
     `
   ).join("");
