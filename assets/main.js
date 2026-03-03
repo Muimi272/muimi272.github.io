@@ -221,7 +221,7 @@ function renderRepoList() {
       <article class="card repo-card">
         <h2>${repo.name}</h2>
         <p>${repo.description || "暂无仓库描述。"}</p>
-        <a class="card-link" href="${repo.url}" target="_blank" rel="noopener noreferrer">打开 GitHub 仓库 ↗</a>
+        <a class="card-link" href="${repo.url}" target="_blank" rel="noopener noreferrer">打开 GitHub 仓库 →</a>
       </article>
     `
   ).join("");
