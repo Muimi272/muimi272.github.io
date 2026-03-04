@@ -30,6 +30,135 @@ function initTheme() {
   }
 }
 
+const SITE_BASE_URL = "https://muimi.club";
+const SITE_NAME = "Muimi";
+const SITE_DESCRIPTION = "Muimi 的个人博客，记录 Java、Python、C# 与前端学习笔记、项目实践和生活灵感。";
+const SITE_IMAGE = `${SITE_BASE_URL}/assets/og-image.svg`;
+const SITE_AUTHOR = {
+  name: "Muimi",
+  email: "Muimi_mail@163.com",
+  github: "https://github.com/Muimi272"
+};
+
+function setMetaTag(attribute, key, content) {
+  if (!content) return;
+  const selector = `meta[${attribute}="${key}"]`;
+  let tag = document.head.querySelector(selector);
+  if (!tag) {
+    tag = document.createElement("meta");
+    tag.setAttribute(attribute, key);
+    document.head.appendChild(tag);
+  }
+  tag.setAttribute("content", content);
+}
+
+function setLinkTag(rel, href) {
+  if (!href) return;
+  let tag = document.head.querySelector(`link[rel="${rel}"]`);
+  if (!tag) {
+    tag = document.createElement("link");
+    tag.setAttribute("rel", rel);
+    document.head.appendChild(tag);
+  }
+  tag.setAttribute("href", href);
+}
+
+function setStructuredData(data) {
+  const scriptId = "structuredData";
+  let script = document.getElementById(scriptId);
+  if (!script) {
+    script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.id = scriptId;
+    document.head.appendChild(script);
+  }
+  script.textContent = JSON.stringify(data);
+}
+
+function buildWebSiteJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: `${SITE_BASE_URL}/`,
+    description: SITE_DESCRIPTION,
+    inLanguage: "zh-CN",
+    publisher: {
+      "@type": "Person",
+      name: SITE_AUTHOR.name,
+      url: `${SITE_BASE_URL}/`,
+      sameAs: [SITE_AUTHOR.github],
+      email: SITE_AUTHOR.email
+    }
+  };
+}
+
+function formatIsoDate(dateString) {
+  if (!dateString) return "";
+  const date = new Date(`${dateString}T00:00:00+08:00`);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString();
+}
+
+function buildPostCanonical(postId) {
+  return `${SITE_BASE_URL}/post.html?id=${encodeURIComponent(postId)}`;
+}
+
+function updatePostSeo(post) {
+  const summary = post.summary || stripHtml(post.content || "").slice(0, 160) || SITE_DESCRIPTION;
+  const canonicalUrl = buildPostCanonical(post.id);
+  const isoDate = formatIsoDate(post.date);
+
+  document.title = `${post.title} | ${SITE_NAME}`;
+  setMetaTag("name", "description", summary);
+  setMetaTag("name", "robots", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
+  setMetaTag("name", "googlebot", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
+  setMetaTag("property", "og:type", "article");
+  setMetaTag("property", "og:title", `${post.title} | ${SITE_NAME}`);
+  setMetaTag("property", "og:description", summary);
+  setMetaTag("property", "og:url", canonicalUrl);
+  setMetaTag("property", "og:image", SITE_IMAGE);
+  setMetaTag("property", "article:published_time", isoDate);
+  setMetaTag("property", "article:modified_time", isoDate);
+  setMetaTag("property", "article:author", SITE_AUTHOR.github);
+  setMetaTag("name", "twitter:title", `${post.title} | ${SITE_NAME}`);
+  setMetaTag("name", "twitter:description", summary);
+  setMetaTag("name", "twitter:image", SITE_IMAGE);
+  setLinkTag("canonical", canonicalUrl);
+
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: summary,
+    datePublished: isoDate,
+    dateModified: isoDate,
+    author: {
+      "@type": "Person",
+      name: SITE_AUTHOR.name,
+      url: SITE_AUTHOR.github
+    },
+    publisher: {
+      "@type": "Person",
+      name: SITE_AUTHOR.name,
+      url: SITE_AUTHOR.github
+    },
+    image: [SITE_IMAGE],
+    mainEntityOfPage: canonicalUrl,
+    inLanguage: "zh-CN"
+  };
+
+  setStructuredData([buildWebSiteJsonLd(), articleJsonLd]);
+}
+
+function updatePostNotFoundSeo() {
+  document.title = `文章未找到 | ${SITE_NAME}`;
+  setMetaTag("name", "description", "文章未找到，请返回文章列表重新选择。");
+  setMetaTag("name", "robots", "noindex, nofollow");
+  setLinkTag("canonical", `${SITE_BASE_URL}/post.html`);
+  setStructuredData(buildWebSiteJsonLd());
+}
+
 let postsCachePromise;
 
 function stripHtml(text) {
@@ -197,6 +326,7 @@ async function renderPostDetail() {
   const post = posts.find((item) => item.id === postId);
 
   if (!post) {
+    updatePostNotFoundSeo();
     container.innerHTML = `
       <h1>文章未找到</h1>
       <p>请从文章列表页重新选择文章。</p>
@@ -204,7 +334,7 @@ async function renderPostDetail() {
     return;
   }
 
-  document.title = `${post.title} | Muimi`;
+  updatePostSeo(post);
   container.innerHTML = `
     <p class="meta">${post.date}</p>
     <h1>${post.title}</h1>

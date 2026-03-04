@@ -133,6 +133,66 @@ body {
   padding: 44px 0 60px;
 }
 
+body.is-404 {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body.is-404 .page-404 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  padding: 60px 0;
+  text-align: center;
+}
+
+body.is-404 .page-404 .page-hero {
+  margin-bottom: 0;
+}
+
+body.is-404 .page-404 .home-block {
+  max-width: 520px;
+  width: min(520px, 92vw);
+}
+
+body.is-404 .page-404 .button-row {
+  justify-content: center;
+}
+
+body.is-404 .page-404 .page-hero h1 {
+  position: relative;
+  margin: 0;
+  font-size: clamp(4rem, 12vw, 8rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  animation: floatPulse 4s ease-in-out infinite;
+}
+
+body.is-404 .page-404 .page-hero h1::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(180px, 30vw, 260px);
+  height: clamp(180px, 30vw, 260px);
+  background: radial-gradient(circle, color-mix(in srgb, var(--brand) 38%, transparent) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  filter: blur(24px);
+  opacity: 0.6;
+  z-index: -1;
+  animation: glowPulse 4.6s ease-in-out infinite;
+}
+
+body.is-404 .page-404 .page-hero p {
+  margin: 12px auto 0;
+  max-width: 560px;
+  font-size: clamp(1.1rem, 2.6vw, 1.45rem);
+}
+
 .page-content > * {
   opacity: 0;
   transform: translateY(14px);
@@ -160,7 +220,8 @@ body {
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 22px;
-  transition: background var(--theme-transition), border-color var(--theme-transition);
+  transition: background var(--theme-transition), border-color var(--theme-transition),
+    var(--theme-transition-fast);
 }
 
 .home-block-head {
@@ -207,6 +268,7 @@ body {
 .article-detail:hover {
   transform: translateY(-4px);
   box-shadow: 0 14px 34px color-mix(in srgb, var(--brand) 14%, transparent);
+  transition: var(--theme-transition-fast);
 }
 
 .hero-main h1 {
@@ -539,9 +601,38 @@ code {
   }
 }
 
+@keyframes floatPulse {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
+  }
+
+  body.is-404 .page-404 .page-hero h1,
+  body.is-404 .page-404 .page-hero h1::after {
+    animation: none !important;
   }
 }
 
