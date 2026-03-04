@@ -5,7 +5,7 @@ const BLOG_CONTENT_CONFIG = {
 };
 
 const DEFAULT_ARTICLE_FILES = [
-  "articles/hello-static-blog.json"
+  "articles/2.json"
 ];
 
 const GITHUB_REPOS = [
