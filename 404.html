@@ -27,6 +27,15 @@
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body class="is-404">
+  <div class="silk-bg" aria-hidden="true"></div>
+
+  <svg style="display: none" aria-hidden="true" focusable="false">
+    <filter id="glass-distortion">
+      <feTurbulence type="turbulence" baseFrequency="0.008" numOctaves="2" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
+    </filter>
+  </svg>
+
   <header class="site-header">
     <div class="container nav-wrap">
       <a class="logo" href="index.html">Muimi</a>
@@ -43,17 +52,27 @@
   </header>
 
   <main class="container page-content page-404">
-    <section class="page-hero">
-      <h1>404</h1>
-      <p>页面没有找到，可能链接已失效或地址输入有误。</p>
-    </section>
+    <div class="liquid-stage">
+      <div class="glass-card">
+        <div class="glass-filter"></div>
+        <div class="glass-distortion-overlay"></div>
+        <div class="glass-overlay"></div>
+        <div class="glass-specular"></div>
+        <div class="glass-content">
+          <section class="page-hero">
+            <h1>404</h1>
+            <p>页面没有找到，可能链接已失效或地址输入有误。</p>
+          </section>
 
-    <section class="home-block">
-      <div class="button-row">
-        <a class="btn btn-primary" href="index.html">返回首页</a>
-        <a class="btn btn-secondary" href="posts.html">浏览文章</a>
+          <section class="home-block">
+            <div class="button-row">
+              <a class="btn btn-primary" href="index.html">返回首页</a>
+              <a class="btn btn-secondary" href="posts.html">浏览文章</a>
+            </div>
+          </section>
+        </div>
       </div>
-    </section>
+    </div>
   </main>
 
   <footer class="site-footer">
