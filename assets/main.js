@@ -104,13 +104,37 @@ function buildPostCanonical(postId) {
   return `${SITE_BASE_URL}/post.html?id=${encodeURIComponent(postId)}`;
 }
 
+function getPostKeywords(post) {
+  const raw = post && post.keywords;
+  let list = [];
+  if (Array.isArray(raw)) {
+    list = raw;
+  } else if (typeof raw === "string") {
+    list = raw.split(/[,，;；]+/);
+  }
+
+  const normalized = list.map((item) => String(item).trim()).filter(Boolean);
+  if (normalized.length) return normalized.slice(0, 12);
+
+  const fallback = [];
+  if (post && post.title) fallback.push(post.title);
+  if (post && post.summary) {
+    const firstSentence = String(post.summary).split(/[。.!?]/)[0].trim();
+    if (firstSentence) fallback.push(firstSentence);
+  }
+  return fallback.slice(0, 6);
+}
+
 function updatePostSeo(post) {
   const summary = post.summary || stripHtml(post.content || "").slice(0, 160) || SITE_DESCRIPTION;
   const canonicalUrl = buildPostCanonical(post.id);
   const isoDate = formatIsoDate(post.date);
+  const keywords = getPostKeywords(post);
+  const keywordsContent = keywords.join(", ");
 
   document.title = `${post.title} | ${SITE_NAME}`;
   setMetaTag("name", "description", summary);
+  setMetaTag("name", "keywords", keywordsContent);
   setMetaTag("name", "robots", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
   setMetaTag("name", "googlebot", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
   setMetaTag("property", "og:type", "article");
@@ -131,6 +155,7 @@ function updatePostSeo(post) {
     "@type": "Article",
     headline: post.title,
     description: summary,
+    keywords: keywordsContent,
     datePublished: isoDate,
     dateModified: isoDate,
     author: {
@@ -178,7 +203,8 @@ function normalizePost(rawPost, sourcePath) {
     title: rawPost.title,
     date: rawPost.date || "1970-01-01",
     summary,
-    content
+    content,
+    keywords: rawPost.keywords
   };
 }
 

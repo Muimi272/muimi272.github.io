@@ -5,7 +5,7 @@ const BLOG_CONTENT_CONFIG = {
 };
 
 const DEFAULT_ARTICLE_FILES = [
-  "articles/2.json"
+  "articles/3.json"
 ];
 
 const GITHUB_REPOS = [
@@ -23,6 +23,11 @@ const GITHUB_REPOS = [
     name: "FileHider",
     description: "File hiding utility project.",
     url: "https://github.com/Muimi272/FileHider"
+  },
+  {
+    name: "XLSXLoader",
+    description: "一个轻量级的 Java XLSX 解析库，用于读取 .xlsx 文件中的工作表名称、工作表 ID，以及按工作表读取二维字符串数据。",
+    url: "https://github.com/Muimi272/XLSXLoader"
   },
   {
     name: "bookmark",

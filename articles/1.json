@@ -3,5 +3,14 @@
   "title": "我的第一篇博客",
   "date": "2026-03-03",
   "summary": "我的第一篇博客：记录从今天开始。",
+  "keywords": [
+    "第一篇博客",
+    "个人博客",
+    "Muimi",
+    "Java",
+    "Python",
+    "C#",
+    "前端"
+  ],
   "content": "<p>Hello！这里是 Muimi 的第一篇文章。</p><p>今天我把个人博客搭建完成了！接下来会在这里持续记录学习过程、项目实践和一些灵感想法。</p><p>我目前主要学习 Java，也会一些 Python、C# 和前端内容。</p><p>如果你想交流，欢迎邮件联系：<a class=\"card-link\" href=\"mailto:Muimi_mail@163.com\">Muimi_mail@163.com</a>，或者访问我的 GitHub：<a class=\"card-link\" href=\"https://github.com/Muimi272\" target=\"_blank\" rel=\"noopener noreferrer\">Muimi272</a>。</p><p>这是开始，不是终点。以后见！</p>"
 }
