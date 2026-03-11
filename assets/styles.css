@@ -632,6 +632,40 @@ body.is-404 .page-404 .page-hero h1 {
   margin-bottom: 14px;
 }
 
+.tool-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.tool-card h2 {
+  margin-bottom: 10px;
+}
+
+.tool-card p {
+  margin-top: 0;
+}
+
+.tool-card .card-link {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.tool-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 2px 0 14px;
+}
+
+.tool-tags span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface-2) 58%, transparent);
+}
+
 .card h2 {
   margin-top: 0;
 }

@@ -12,6 +12,7 @@
 - 文章关键词搜索
 - 首页精选文章展示
 - 仓库卡片展示并跳转到 GitHub
+- 文章级 SEO（description / keywords / JSON-LD / canonical）
 
 ## 目录结构
 
@@ -27,9 +28,9 @@
 │   ├── index.json
 │   └── *.json
 └── assets/
-    ├── styles.css
-    ├── main.js
-    └── data.js
+  ├── styles.css
+  ├── main.js
+  └── data.js
 ```
 
 ## 新增文章
@@ -47,9 +48,12 @@
   "title": "我的新文章",
   "date": "2026-03-03",
   "summary": "一句简短摘要",
+  "keywords": ["关键词1", "关键词2", "关键词3"],
   "content": "<p>这里是正文 HTML。</p>"
 }
 ```
+
+`keywords` 会用于文章页的 SEO（meta keywords / JSON-LD）。
 
 ## 本地预览
 

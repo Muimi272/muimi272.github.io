@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>贪吃蛇 | Muimi 工具</title>
+  <meta name="description" content="在 Muimi 工具板块中游玩贪吃蛇。" />
+  <meta name="keywords" content="贪吃蛇, Snake, 小游戏, 在线工具, Muimi" />
+  <meta name="author" content="Muimi" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <link rel="canonical" href="https://muimi.club/tools/snake.html" />
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" sizes="any" />
+  <link rel="apple-touch-icon" href="../assets/favicon.svg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Muimi" />
+  <meta property="og:title" content="贪吃蛇 | Muimi 工具" />
+  <meta property="og:description" content="在 Muimi 工具板块中游玩贪吃蛇。" />
+  <meta property="og:url" content="https://muimi.club/tools/snake.html" />
+  <meta property="og:image" content="https://muimi.club/assets/og-image.svg" />
+  <meta property="og:image:type" content="image/svg+xml" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="贪吃蛇 | Muimi 工具" />
+  <meta name="twitter:description" content="在 Muimi 工具板块中游玩贪吃蛇。" />
+  <meta name="twitter:image" content="https://muimi.club/assets/og-image.svg" />
+  <script type="application/ld+json" id="structuredData">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "贪吃蛇",
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "Any",
+      "url": "https://muimi.club/tools/snake.html",
+      "inLanguage": "zh-CN",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Muimi",
+        "url": "https://muimi.club/"
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    .snake-page {
+      position: relative;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .snake-page::before,
+    .snake-page::after {
+      content: "";
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+      border-radius: 50%;
+      filter: blur(68px);
+    }
+
+    .snake-page::before {
+      width: 38vw;
+      height: 38vw;
+      top: -12vw;
+      left: -8vw;
+      background: color-mix(in srgb, #5d86ff 30%, transparent);
+      animation: snakeFloatA 12s ease-in-out infinite;
+    }
+
+    .snake-page::after {
+      width: 36vw;
+      height: 36vw;
+      right: -10vw;
+      bottom: -12vw;
+      background: color-mix(in srgb, #55d39d 26%, transparent);
+      animation: snakeFloatB 15s ease-in-out infinite;
+    }
+
+    .snake-page .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 12;
+    }
+
+    .snake-page .page-content {
+      position: relative;
+      z-index: 1;
+      padding: 18px 0 26px;
+    }
+
+    .snake-page .site-footer {
+      display: none;
+    }
+
+    .snake-shell {
+      display: grid;
+      gap: 16px;
+    }
+
+    .snake-hero {
+      border: 1px solid color-mix(in srgb, var(--line) 86%, transparent);
+      border-radius: 16px;
+      padding: clamp(14px, 2.2vw, 20px);
+      background:
+        linear-gradient(120deg, color-mix(in srgb, var(--surface) 94%, transparent) 0%, color-mix(in srgb, var(--surface-2) 80%, transparent) 100%);
+      box-shadow: 0 14px 28px color-mix(in srgb, #000000 22%, transparent);
+    }
+
+    .snake-hero h1 {
+      margin: 0;
+      font-size: clamp(1.3rem, 2.8vw, 2rem);
+      letter-spacing: 0.03em;
+      color: var(--brand);
+      line-height: 1.25;
+    }
+
+    .snake-hero p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+      max-width: 72ch;
+    }
+
+    .snake-tip-row {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .snake-tip {
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.84rem;
+      border: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
+      background: color-mix(in srgb, var(--surface-2) 46%, transparent);
+      color: var(--text);
+    }
+
+    .snake-workbench {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      align-items: start;
+      gap: 16px;
+    }
+
+    .snake-board-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+      box-shadow: 0 16px 34px color-mix(in srgb, #000000 24%, transparent);
+      aspect-ratio: 1 / 1;
+      width: min(74vh, calc(100vw - 390px));
+      max-width: 100%;
+      justify-self: center;
+      transition: transform 220ms ease, box-shadow 260ms ease;
+    }
+
+    .snake-board-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 36px color-mix(in srgb, var(--brand) 14%, transparent);
+    }
+
+    .snake-board {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid color-mix(in srgb, var(--line) 84%, transparent);
+      background: radial-gradient(circle at 18% 16%, color-mix(in srgb, var(--surface-2) 78%, #000000 22%), color-mix(in srgb, var(--bg) 84%, #000000 16%));
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, #ffffff 7%, transparent);
+    }
+
+    .snake-board::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 18%, transparent 84%, rgba(0, 0, 0, 0.18)),
+        repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0 2px, transparent 2px 9px);
+      mix-blend-mode: soft-light;
+    }
+
+    .snake-board canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+
+    .snake-overlay {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 4;
+      background: color-mix(in srgb, var(--bg) 68%, rgba(0, 0, 0, 0.5));
+      backdrop-filter: blur(4px);
+      transition: opacity 240ms ease;
+    }
+
+    .snake-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .snake-overlay-panel {
+      text-align: center;
+      max-width: 290px;
+      padding: 18px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--surface) 90%, transparent);
+      box-shadow: 0 14px 32px color-mix(in srgb, #000000 32%, transparent);
+    }
+
+    .snake-overlay-panel h2 {
+      margin: 0 0 8px;
+      color: var(--brand);
+      font-size: 1.2rem;
+    }
+
+    .snake-overlay-panel p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .snake-overlay-panel button {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      background: color-mix(in srgb, var(--brand) 24%, var(--surface-2));
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .snake-side {
+      display: grid;
+      gap: 12px;
+    }
+
+    .snake-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: color-mix(in srgb, var(--surface) 90%, transparent);
+      box-shadow: 0 10px 24px color-mix(in srgb, #000000 16%, transparent);
+    }
+
+    .snake-side-title {
+      margin: 0 0 10px;
+      font-size: 1.18rem;
+      color: var(--brand);
+      letter-spacing: 0.03em;
+    }
+
+    .snake-metrics {
+      display: grid;
+      gap: 9px;
+    }
+
+    .snake-metric {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--surface-2) 50%, transparent);
+      font-size: 0.95rem;
+    }
+
+    .snake-metric strong {
+      color: var(--brand);
+      font-size: 1.08rem;
+    }
+
+    .snake-actions {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .snake-actions button,
+    .snake-nav-action a,
+    .snake-overlay-panel button {
+      transition: transform 180ms ease, border-color var(--theme-transition-fast), background var(--theme-transition-fast);
+    }
+
+    .snake-actions button {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 8px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--text);
+      background: color-mix(in srgb, var(--surface-2) 58%, transparent);
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 color-mix(in srgb, #ffffff 8%, transparent);
+    }
+
+    .snake-actions button:hover,
+    .snake-nav-action a:hover,
+    .snake-overlay-panel button:hover {
+      transform: translateY(-1px);
+      border-color: color-mix(in srgb, var(--brand) 58%, var(--line));
+    }
+
+    .snake-actions button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .snake-actions button:active,
+    .snake-overlay-panel button:active {
+      transform: translateY(0);
+    }
+
+    .snake-nav-action {
+      margin-top: 10px;
+    }
+
+    .snake-nav-action a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 10px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      background: color-mix(in srgb, var(--surface-2) 44%, transparent);
+    }
+
+    .snake-help {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+
+    .snake-dpad-card {
+      display: none;
+    }
+
+    .snake-dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 52px);
+      grid-template-rows: repeat(3, 52px);
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .snake-dpad button {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--surface-2) 62%, transparent);
+      color: var(--text);
+      font-size: 1.08rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 120ms ease, border-color var(--theme-transition-fast);
+      box-shadow: 0 8px 16px color-mix(in srgb, #000000 24%, transparent);
+    }
+
+    .snake-dpad button:active {
+      transform: scale(0.95);
+      border-color: color-mix(in srgb, var(--brand) 65%, var(--line));
+    }
+
+    .snake-dpad .up { grid-column: 2; grid-row: 1; }
+    .snake-dpad .left { grid-column: 1; grid-row: 2; }
+    .snake-dpad .right { grid-column: 3; grid-row: 2; }
+    .snake-dpad .down { grid-column: 2; grid-row: 3; }
+
+    @keyframes snakeFloatA {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(22px); }
+    }
+
+    @keyframes snakeFloatB {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-18px); }
+    }
+
+    @media (max-width: 1040px) {
+      .snake-workbench {
+        grid-template-columns: 1fr;
+      }
+
+      .snake-board-card {
+        width: min(90vw, 78vh);
+      }
+
+      .snake-side {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .snake-side .snake-card:last-child {
+        grid-column: 1 / -1;
+      }
+
+      .snake-dpad-card {
+        display: block;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .snake-page .page-content {
+        padding: 12px 0 18px;
+      }
+
+      .snake-hero {
+        padding: 12px;
+      }
+
+      .snake-side {
+        grid-template-columns: 1fr;
+      }
+
+      .snake-board-card {
+        width: min(92vw, calc(100svh - 360px));
+      }
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .snake-dpad-card {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="snake-page">
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="logo" href="../index.html">Muimi</a>
+      <nav class="site-nav">
+        <a href="../index.html">首页</a>
+        <a href="../posts.html">文章</a>
+        <a class="active" href="../tools.html">工具</a>
+        <a href="../repos.html">仓库</a>
+      </nav>
+      <button id="themeToggle" class="theme-toggle" aria-label="切换主题">
+        <span class="theme-icon" aria-hidden="true"></span>
+        <span class="theme-text">深色</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container page-content">
+    <section class="snake-shell" aria-label="贪吃蛇游戏区">
+      <section class="snake-hero">
+        <h1>贪吃蛇 · Snake Sprint</h1>
+        <div class="snake-tip-row" aria-hidden="true">
+          <span class="snake-tip">24 x 24 网格</span>
+        </div>
+      </section>
+
+      <section class="snake-workbench">
+        <section class="snake-board-card">
+          <div class="snake-board">
+            <canvas id="snakeCanvas" width="720" height="720" aria-label="贪吃蛇画布"></canvas>
+            <div id="overlay" class="snake-overlay">
+              <div class="snake-overlay-panel">
+                <h2 id="overlayTitle">准备开始</h2>
+                <p id="overlayText">点击下方按钮或按空格键开始游戏。</p>
+                <button id="overlayBtn" type="button">开始游戏</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="snake-side">
+          <section class="snake-card">
+            <h2 class="snake-side-title">当前数据</h2>
+            <div class="snake-metrics">
+              <div class="snake-metric">
+                <span>当前分数</span>
+                <strong id="score">0</strong>
+              </div>
+              <div class="snake-metric">
+                <span>最高分</span>
+                <strong id="best">0</strong>
+              </div>
+              <div class="snake-metric">
+                <span>当前速度</span>
+                <strong id="speed">0.00 格/秒</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="snake-card">
+            <div class="snake-actions">
+              <button id="startBtn" type="button">开始</button>
+              <button id="pauseBtn" type="button" disabled>暂停</button>
+              <button id="restartBtn" type="button" disabled>重开</button>
+            </div>
+            <div class="snake-nav-action">
+              <a href="../tools.html">返回工具列表</a>
+            </div>
+          </section>
+
+          <section class="snake-card">
+            <p class="snake-help">游戏规则：不要碰到自己，尽可能获得更高的分数！</p>
+          </section>
+
+          <section class="snake-card snake-dpad-card">
+            <div class="snake-dpad" aria-label="方向控制">
+              <button class="up" data-dir="up" type="button">↑</button>
+              <button class="left" data-dir="left" type="button">←</button>
+              <button class="right" data-dir="right" type="button">→</button>
+              <button class="down" data-dir="down" type="button">↓</button>
+            </div>
+          </section>
+        </aside>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 2026 Muimi</p>
+    </div>
+  </footer>
+
+  <script src="../assets/main.js"></script>
+  <script>
+    (() => {
+      const GRID = 24;
+      const BASE_SPEED = 4.2;
+      const SCORE_STEP = 10;
+      const BEST_KEY = "snake-best-score";
+
+      const canvas = document.getElementById("snakeCanvas");
+      const ctx = canvas.getContext("2d");
+      const scoreEl = document.getElementById("score");
+      const bestEl = document.getElementById("best");
+      const speedEl = document.getElementById("speed");
+      const startBtn = document.getElementById("startBtn");
+      const pauseBtn = document.getElementById("pauseBtn");
+      const restartBtn = document.getElementById("restartBtn");
+      const overlay = document.getElementById("overlay");
+      const overlayTitle = document.getElementById("overlayTitle");
+      const overlayText = document.getElementById("overlayText");
+      const overlayBtn = document.getElementById("overlayBtn");
+      const dpadButtons = document.querySelectorAll("[data-dir]");
+      const mobileControlMode = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+
+      const state = {
+        snake: [],
+        food: { x: 0, y: 0 },
+        direction: "right",
+        nextDirection: "right",
+        running: false,
+        paused: false,
+        over: false,
+        score: 0,
+        best: 0,
+        accumulator: 0,
+        lastTime: 0,
+        rafId: 0,
+        foodPulse: 0
+      };
+
+      function speedByScore(score) {
+        return BASE_SPEED + 0.008 * Math.pow(Math.max(0, score), 1.28);
+      }
+
+      function loadBest() {
+        const raw = parseInt(localStorage.getItem(BEST_KEY) || "0", 10);
+        state.best = Number.isNaN(raw) ? 0 : raw;
+      }
+
+      function saveBest() {
+        if (state.score > state.best) {
+          state.best = state.score;
+          localStorage.setItem(BEST_KEY, String(state.best));
+        }
+      }
+
+      function updateUi() {
+        scoreEl.textContent = String(state.score);
+        bestEl.textContent = String(state.best);
+        speedEl.textContent = `${speedByScore(state.score).toFixed(2)} 格/秒`;
+        pauseBtn.disabled = !state.running || state.over;
+        restartBtn.disabled = !state.running && !state.over;
+        pauseBtn.textContent = state.paused ? "继续" : "暂停";
+      }
+
+      function setStatus(_) {}
+
+      function showOverlay(title, text, btnText, onClick) {
+        overlayTitle.textContent = title;
+        overlayText.textContent = text;
+        overlayBtn.textContent = btnText;
+        overlay.classList.remove("hidden");
+        overlayBtn.onclick = onClick;
+      }
+
+      function hideOverlay() {
+        overlay.classList.add("hidden");
+      }
+
+      function randomEmptyCell() {
+        let cell;
+        do {
+          cell = {
+            x: Math.floor(Math.random() * GRID),
+            y: Math.floor(Math.random() * GRID)
+          };
+        } while (state.snake.some((item) => item.x === cell.x && item.y === cell.y));
+        return cell;
+      }
+
+      function resetGameData() {
+        const c = Math.floor(GRID / 2);
+        state.snake = [
+          { x: c - 1, y: c },
+          { x: c, y: c },
+          { x: c + 1, y: c }
+        ];
+        state.direction = "right";
+        state.nextDirection = "right";
+        state.score = 0;
+        state.accumulator = 0;
+        state.lastTime = 0;
+        state.over = false;
+        state.food = randomEmptyCell();
+        setStatus("待开始");
+        updateUi();
+      }
+
+      function isOpposite(a, b) {
+        return (
+          (a === "up" && b === "down") ||
+          (a === "down" && b === "up") ||
+          (a === "left" && b === "right") ||
+          (a === "right" && b === "left")
+        );
+      }
+
+      function setDirection(next) {
+        if (!state.running || state.paused || state.over) return;
+        if (isOpposite(state.direction, next)) return;
+        state.nextDirection = next;
+      }
+
+      function stepSnake() {
+        state.direction = state.nextDirection;
+
+        const head = state.snake[state.snake.length - 1];
+        const next = { x: head.x, y: head.y };
+
+        if (state.direction === "up") next.y -= 1;
+        if (state.direction === "down") next.y += 1;
+        if (state.direction === "left") next.x -= 1;
+        if (state.direction === "right") next.x += 1;
+
+        if (next.x < 0) next.x = GRID - 1;
+        if (next.y < 0) next.y = GRID - 1;
+        if (next.x >= GRID) next.x = 0;
+        if (next.y >= GRID) next.y = 0;
+
+        if (state.snake.some((part) => part.x === next.x && part.y === next.y)) {
+          gameOver();
+          return false;
+        }
+
+        state.snake.push(next);
+
+        if (next.x === state.food.x && next.y === state.food.y) {
+          state.score += SCORE_STEP;
+          state.food = randomEmptyCell();
+          updateUi();
+          setStatus("加速中");
+        } else {
+          state.snake.shift();
+        }
+
+        return true;
+      }
+
+      function gameOver() {
+        state.over = true;
+        state.running = false;
+        state.paused = false;
+        saveBest();
+        updateUi();
+        setStatus(`结束，本局 ${state.score} 分`);
+        showOverlay(
+          "游戏结束",
+          `本局得分 ${state.score}，最高分 ${state.best}。`,
+          "再来一局",
+          () => restartGame()
+        );
+      }
+
+      function drawGrid() {
+        const tile = canvas.width / GRID;
+        ctx.strokeStyle = "rgba(255,255,255,0.06)";
+        ctx.lineWidth = 1;
+
+        for (let i = 0; i <= GRID; i += 1) {
+          const p = i * tile;
+          ctx.beginPath();
+          ctx.moveTo(p, 0);
+          ctx.lineTo(p, canvas.height);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(0, p);
+          ctx.lineTo(canvas.width, p);
+          ctx.stroke();
+        }
+      }
+
+      function drawCell(x, y, color, padding = 2, radius = 5) {
+        const tile = canvas.width / GRID;
+        const px = x * tile + padding;
+        const py = y * tile + padding;
+        const w = tile - padding * 2;
+        const h = tile - padding * 2;
+
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(px + radius, py);
+        ctx.lineTo(px + w - radius, py);
+        ctx.quadraticCurveTo(px + w, py, px + w, py + radius);
+        ctx.lineTo(px + w, py + h - radius);
+        ctx.quadraticCurveTo(px + w, py + h, px + w - radius, py + h);
+        ctx.lineTo(px + radius, py + h);
+        ctx.quadraticCurveTo(px, py + h, px, py + h - radius);
+        ctx.lineTo(px, py + radius);
+        ctx.quadraticCurveTo(px, py, px + radius, py);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      function drawSnake() {
+        state.snake.forEach((part, index) => {
+          const isHead = index === state.snake.length - 1;
+          const color = isHead ? "#8fb3ff" : "#65d2a6";
+          drawCell(part.x, part.y, color, 2, isHead ? 6 : 4);
+
+          if (isHead) {
+            const tile = canvas.width / GRID;
+            const cx = part.x * tile;
+            const cy = part.y * tile;
+            const eyeRadius = Math.max(2, tile * 0.05);
+            const eyeDistance = tile * 0.19;
+            const frontOffset = tile * 0.24;
+
+            let centerX = cx + tile / 2;
+            let centerY = cy + tile / 2;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            if (state.direction === "right") {
+              centerX += frontOffset;
+              offsetY = eyeDistance;
+            } else if (state.direction === "left") {
+              centerX -= frontOffset;
+              offsetY = eyeDistance;
+            } else if (state.direction === "up") {
+              centerY -= frontOffset;
+              offsetX = eyeDistance;
+            } else if (state.direction === "down") {
+              centerY += frontOffset;
+              offsetX = eyeDistance;
+            }
+
+            ctx.fillStyle = "rgba(255,255,255,0.92)";
+            ctx.beginPath();
+            ctx.arc(centerX + offsetX, centerY + offsetY, eyeRadius, 0, Math.PI * 2);
+            ctx.arc(centerX - offsetX, centerY - offsetY, eyeRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = "rgba(20,36,60,0.92)";
+            ctx.beginPath();
+            ctx.arc(centerX + offsetX, centerY + offsetY, Math.max(1.2, eyeRadius * 0.46), 0, Math.PI * 2);
+            ctx.arc(centerX - offsetX, centerY - offsetY, Math.max(1.2, eyeRadius * 0.46), 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+      }
+
+      function drawFood(timestamp) {
+        state.foodPulse = (Math.sin(timestamp / 140) + 1) / 2;
+        const glow = 0.28 + state.foodPulse * 0.36;
+        const foodColor = `rgba(247,185,85,${0.72 + state.foodPulse * 0.28})`;
+
+        ctx.shadowColor = `rgba(247,185,85,${glow})`;
+        ctx.shadowBlur = 18;
+        drawCell(state.food.x, state.food.y, foodColor, 3, 7);
+        ctx.shadowBlur = 0;
+      }
+
+      function draw(timestamp = 0) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid();
+        drawSnake();
+        drawFood(timestamp);
+      }
+
+      function startGame() {
+        if (state.running && !state.paused) return;
+        if (state.over) resetGameData();
+
+        state.running = true;
+        state.paused = false;
+        setStatus("进行中");
+        hideOverlay();
+        updateUi();
+      }
+
+      function pauseOrResume() {
+        if (!state.running || state.over) return;
+
+        state.paused = !state.paused;
+        if (state.paused) {
+          setStatus("已暂停");
+          const pauseHint = mobileControlMode
+            ? "点击继续按钮后，使用方向键盘控制蛇移动。"
+            : "按空格或点击继续按钮恢复游戏。";
+          showOverlay("游戏暂停", pauseHint, "继续游戏", () => pauseOrResume());
+        } else {
+          setStatus("进行中");
+          hideOverlay();
+        }
+        updateUi();
+      }
+
+      function restartGame() {
+        resetGameData();
+        state.running = true;
+        state.paused = false;
+        setStatus("进行中");
+        hideOverlay();
+        updateUi();
+      }
+
+      function onKeyDown(event) {
+        if (event.key === " ") {
+          event.preventDefault();
+          if (!state.running || state.over) {
+            startGame();
+          } else {
+            pauseOrResume();
+          }
+          return;
+        }
+
+        if (event.key === "ArrowUp"    || event.key === "w" || event.key === "W") setDirection("up");
+        if (event.key === "ArrowDown"  || event.key === "s" || event.key === "S") setDirection("down");
+        if (event.key === "ArrowLeft"  || event.key === "a" || event.key === "A") setDirection("left");
+        if (event.key === "ArrowRight" || event.key === "d" || event.key === "D") setDirection("right");
+      }
+
+      function loop(timestamp) {
+        if (state.running && !state.paused && !state.over) {
+          if (!state.lastTime) state.lastTime = timestamp;
+          const dt = (timestamp - state.lastTime) / 1000;
+          state.lastTime = timestamp;
+
+          state.accumulator += dt * speedByScore(state.score);
+          const steps = Math.floor(state.accumulator);
+
+          if (steps > 0) {
+            state.accumulator -= steps;
+            for (let i = 0; i < steps; i += 1) {
+              if (!stepSnake()) break;
+            }
+          }
+        } else {
+          state.lastTime = timestamp;
+        }
+
+        draw(timestamp);
+        state.rafId = requestAnimationFrame(loop);
+      }
+
+      function bindEvents() {
+        startBtn.addEventListener("click", startGame);
+        pauseBtn.addEventListener("click", pauseOrResume);
+        restartBtn.addEventListener("click", restartGame);
+
+        if (!mobileControlMode) {
+          window.addEventListener("keydown", onKeyDown);
+        }
+
+        if (mobileControlMode) {
+          dpadButtons.forEach((btn) => {
+            const direction = btn.getAttribute("data-dir");
+            btn.addEventListener("pointerdown", (event) => {
+              event.preventDefault();
+              if (!state.running || state.over) startGame();
+              setDirection(direction);
+            });
+          });
+        }
+      }
+
+      function init() {
+        loadBest();
+        resetGameData();
+        bindEvents();
+        const startHint = mobileControlMode
+          ? "点击开始后使用方向键盘控制蛇移动。"
+          : "点击开始或按空格键开始，方向键控制移动。";
+        showOverlay("准备开始", startHint, "开始游戏", () => startGame());
+        draw();
+        state.rafId = requestAnimationFrame(loop);
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>

@@ -104,6 +104,10 @@ function buildPostCanonical(postId) {
   return `${SITE_BASE_URL}/post.html?id=${encodeURIComponent(postId)}`;
 }
 
+function buildToolCanonical(toolId) {
+  return `${SITE_BASE_URL}/tool.html?id=${encodeURIComponent(toolId)}`;
+}
+
 function getPostKeywords(post) {
   const raw = post && post.keywords;
   let list = [];
@@ -181,6 +185,61 @@ function updatePostNotFoundSeo() {
   setMetaTag("name", "description", "文章未找到，请返回文章列表重新选择。");
   setMetaTag("name", "robots", "noindex, nofollow");
   setLinkTag("canonical", `${SITE_BASE_URL}/post.html`);
+  setStructuredData(buildWebSiteJsonLd());
+}
+
+function getToolKeywords(tool) {
+  const raw = tool && tool.keywords;
+  if (Array.isArray(raw)) {
+    const list = raw.map((item) => String(item).trim()).filter(Boolean);
+    if (list.length) return list.slice(0, 12);
+  }
+
+  const fallback = [];
+  if (tool && tool.name) fallback.push(tool.name);
+  if (tool && Array.isArray(tool.tags)) fallback.push(...tool.tags);
+  return fallback.map((item) => String(item).trim()).filter(Boolean).slice(0, 12);
+}
+
+function updateToolSeo(tool) {
+  const summary = tool.summary || tool.description || "工具详情页";
+  const canonicalUrl = buildToolCanonical(tool.id);
+  const keywordsContent = getToolKeywords(tool).join(", ");
+
+  document.title = `${tool.name} | ${SITE_NAME}`;
+  setMetaTag("name", "description", summary);
+  setMetaTag("name", "keywords", keywordsContent);
+  setMetaTag("name", "robots", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
+  setMetaTag("name", "googlebot", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
+  setMetaTag("property", "og:type", "website");
+  setMetaTag("property", "og:title", `${tool.name} | ${SITE_NAME}`);
+  setMetaTag("property", "og:description", summary);
+  setMetaTag("property", "og:url", canonicalUrl);
+  setMetaTag("property", "og:image", SITE_IMAGE);
+  setMetaTag("name", "twitter:title", `${tool.name} | ${SITE_NAME}`);
+  setMetaTag("name", "twitter:description", summary);
+  setMetaTag("name", "twitter:image", SITE_IMAGE);
+  setLinkTag("canonical", canonicalUrl);
+
+  const toolJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: tool.name,
+    description: summary,
+    url: canonicalUrl,
+    applicationCategory: "UtilitiesApplication",
+    operatingSystem: "Any",
+    inLanguage: "zh-CN"
+  };
+
+  setStructuredData([buildWebSiteJsonLd(), toolJsonLd]);
+}
+
+function updateToolNotFoundSeo() {
+  document.title = `工具未找到 | ${SITE_NAME}`;
+  setMetaTag("name", "description", "工具未找到，请返回工具列表重新选择。");
+  setMetaTag("name", "robots", "noindex, nofollow");
+  setLinkTag("canonical", `${SITE_BASE_URL}/tool.html`);
   setStructuredData(buildWebSiteJsonLd());
 }
 
@@ -383,6 +442,117 @@ function renderRepoList() {
   ).join("");
 }
 
+function normalizeToolItem(rawTool) {
+  if (!rawTool || !rawTool.id || !rawTool.name || !rawTool.page) return null;
+  return {
+    id: String(rawTool.id),
+    date: String(rawTool.date || ""),
+    name: String(rawTool.name),
+    description: String(rawTool.description || "暂无工具描述。"),
+    summary: String(rawTool.summary || rawTool.description || ""),
+    detail: String(rawTool.detail || ""),
+    page: String(rawTool.page),
+    keywords: Array.isArray(rawTool.keywords) ? rawTool.keywords : [],
+    tags: Array.isArray(rawTool.tags) ? rawTool.tags.map((tag) => String(tag).trim()).filter(Boolean) : []
+  };
+}
+
+function renderToolList() {
+  const toolList = document.getElementById("toolList");
+  if (!toolList || typeof TOOL_ITEMS === "undefined" || !Array.isArray(TOOL_ITEMS)) return;
+
+  const tools = TOOL_ITEMS.map(normalizeToolItem).filter(Boolean);
+  const searchInput = document.getElementById("toolSearch");
+  const statusText = document.getElementById("toolSearchStatus");
+
+  function drawList(filteredTools) {
+    if (!filteredTools.length) {
+      toolList.innerHTML = `
+        <article class="card tool-card">
+          <h2>未找到匹配工具</h2>
+        </article>
+      `;
+      return;
+    }
+
+    toolList.innerHTML = filteredTools.map((tool) => {
+      const tagHtml = tool.tags.length
+        ? `<p class="tool-tags">${tool.tags.map((tag) => `<span>${tag}</span>`).join("")}</p>`
+        : "";
+
+      return `
+        <article class="card tool-card">
+          <h2>${tool.name}</h2>
+          <p>${tool.description}</p>
+          ${tagHtml}
+          <a class="card-link" href="tool.html?id=${encodeURIComponent(tool.id)}">查看详情</a>
+        </article>
+      `;
+    }).join("");
+  }
+
+  function updateStatus(count) {
+    if (!statusText) return;
+    statusText.textContent = `已匹配 ${count} 个工具`;
+  }
+
+  function filterAndRender(keywordRaw) {
+    const keyword = String(keywordRaw || "").trim().toLowerCase();
+    const filtered = tools.filter((tool) => {
+      const text = `${tool.name} ${tool.description} ${tool.tags.join(" ")}`.toLowerCase();
+      return text.includes(keyword);
+    });
+    drawList(filtered);
+    updateStatus(filtered.length);
+  }
+
+  if (!searchInput) {
+    drawList(tools);
+    updateStatus(tools.length);
+    return;
+  }
+
+  filterAndRender(searchInput.value || "");
+  searchInput.addEventListener("input", (event) => {
+    filterAndRender(event.target.value || "");
+  });
+}
+
+function renderToolDetail() {
+  const container = document.getElementById("toolDetail");
+  if (!container || typeof TOOL_ITEMS === "undefined" || !Array.isArray(TOOL_ITEMS)) return;
+
+  const tools = TOOL_ITEMS.map(normalizeToolItem).filter(Boolean);
+  const params = new URLSearchParams(window.location.search);
+  const toolId = params.get("id");
+  const tool = tools.find((item) => item.id === toolId);
+
+  if (!tool) {
+    updateToolNotFoundSeo();
+    container.innerHTML = `
+      <h1>工具未找到</h1>
+      <p>请从工具列表页重新选择。</p>
+    `;
+    return;
+  }
+
+  updateToolSeo(tool);
+  const tagsHtml = tool.tags.length
+    ? `<p class="tool-tags">${tool.tags.map((tag) => `<span>${tag}</span>`).join("")}</p>`
+    : "";
+
+  container.innerHTML = `
+    <p class="meta">${tool.date || ""}</p>
+    <h1>${tool.name}</h1>
+    <p>${tool.summary || tool.description}</p>
+    ${tagsHtml}
+    <section class="article-body">${tool.detail || `<p>${tool.description}</p>`}</section>
+    <div class="button-row">
+      <a class="btn btn-primary" href="${tool.page}">在线使用</a>
+    </div>
+  `;
+}
+
 async function renderHomeFeaturedPost() {
   const container = document.getElementById("homeFeaturedPost");
   if (!container) return;
@@ -433,6 +603,8 @@ initTheme();
 renderPostList();
 renderPostDetail();
 renderRepoList();
+renderToolList();
+renderToolDetail();
 renderHomeFeaturedPost();
 renderHomeRepoList();
 

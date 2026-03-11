@@ -8,6 +8,20 @@ const DEFAULT_ARTICLE_FILES = [
   "articles/3.json"
 ];
 
+const TOOL_ITEMS = [
+  {
+    id: "snake",
+    name: "贪吃蛇",
+    date: "2026-03-11",
+    description: "经典贪吃蛇小游戏，支持键盘与触屏方向控制。",
+    summary: "摸鱼小游戏",
+    tags: ["游戏", "JavaScript", "Canvas"],
+    keywords: ["贪吃蛇", "Snake", "小游戏", "在线工具", "Muimi"],
+    detail: "<p>这是一个贪吃蛇小游戏，支持键盘方向键与移动端触控按钮。</p><p>游戏使用非线性加速机制，分数越高，蛇的速度会持续提升且没有固定上限。</p>",
+    page: "tools/snake.html"
+  }
+];
+
 const GITHUB_REPOS = [
   {
     name: "Keyboard-Listener",
