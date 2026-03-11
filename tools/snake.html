@@ -396,46 +396,113 @@
       50% { transform: translateY(-18px); }
     }
 
+    /* 鼠标设备窄屏：单列布局，侧边栏两列 */
     @media (max-width: 1040px) {
       .snake-workbench {
         grid-template-columns: 1fr;
       }
 
       .snake-board-card {
-        width: min(90vw, 78vh);
+        width: min(90vw, 72vh);
       }
 
       .snake-side {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .snake-side .snake-card:last-child {
+      .snake-side .snake-card:not(.snake-dpad-card):last-of-type {
         grid-column: 1 / -1;
-      }
-
-      .snake-dpad-card {
-        display: block;
       }
     }
 
-    @media (max-width: 680px) {
+    /* 触屏设备：竖屏——确保画布与方向键同屏可见 */
+    @media (hover: none) and (pointer: coarse) {
       .snake-page .page-content {
-        padding: 12px 0 18px;
+        padding: 8px 0 12px;
       }
 
       .snake-hero {
-        padding: 12px;
+        display: none;
+      }
+
+      .snake-shell {
+        gap: 8px;
+      }
+
+      .snake-workbench {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      /* 限高确保下方控件不被推出屏幕 */
+      .snake-board-card {
+        width: min(90vw, clamp(200px, 44svh, 480px));
+        padding: 8px;
+      }
+
+      .snake-side {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .snake-card {
+        padding: 10px;
+      }
+
+      /* 数据横排三列 */
+      .snake-metrics {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+
+      .snake-metric {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        padding: 6px 8px;
+        font-size: 0.82rem;
+      }
+
+      .snake-metric strong {
+        font-size: 0.96rem;
+      }
+
+      /* 隐藏非必要说明卡 */
+      .snake-help-card {
+        display: none;
+      }
+
+      /* 方向键强制显示，按钮更大 */
+      .snake-dpad-card {
+        display: block;
+      }
+
+      .snake-dpad {
+        grid-template-columns: repeat(3, 62px);
+        grid-template-rows: repeat(3, 62px);
+        gap: 10px;
+        margin-top: 4px;
+      }
+    }
+
+    /* 触屏横屏：画布与控制栏并排 */
+    @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
+      .snake-workbench {
+        grid-template-columns: auto 200px;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .snake-board-card {
+        width: min(60vw, 82svh);
       }
 
       .snake-side {
         grid-template-columns: 1fr;
       }
-
-      .snake-board-card {
-        width: min(92vw, calc(100svh - 360px));
-      }
     }
 
+    /* 鼠标/触控板设备：始终隐藏方向键 */
     @media (hover: hover) and (pointer: fine) {
       .snake-dpad-card {
         display: none !important;
@@ -513,7 +580,7 @@
             </div>
           </section>
 
-          <section class="snake-card">
+          <section class="snake-card snake-help-card">
             <p class="snake-help">游戏规则：不要碰到自己，尽可能获得更高的分数！</p>
           </section>
 
