@@ -48,6 +48,7 @@
       position: relative;
       min-height: 100vh;
       overflow-x: hidden;
+      padding-bottom: 58px;
     }
 
     .snake-page::before,
@@ -386,6 +387,26 @@
     .snake-dpad .right { grid-column: 3; grid-row: 2; }
     .snake-dpad .down { grid-column: 2; grid-row: 3; }
 
+    .tools-copyright-badge {
+      position: fixed;
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+      z-index: 9999;
+      pointer-events: none;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--brand) 28%, var(--line));
+      background: color-mix(in srgb, var(--surface) 88%, rgba(0, 0, 0, 0.4));
+      backdrop-filter: blur(8px);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--text);
+      box-shadow: 0 8px 20px color-mix(in srgb, #000000 28%, transparent);
+      white-space: nowrap;
+    }
+
     @keyframes snakeFloatA {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(22px); }
@@ -419,6 +440,12 @@
     @media (hover: none) and (pointer: coarse) {
       .snake-page .page-content {
         padding: 8px 0 12px;
+      }
+
+      .tools-copyright-badge {
+        font-size: 11px;
+        bottom: 10px;
+        padding: 6px 10px;
       }
 
       .snake-hero {
@@ -506,6 +533,14 @@
     @media (hover: hover) and (pointer: fine) {
       .snake-dpad-card {
         display: none !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .tools-copyright-badge {
+        max-width: calc(100vw - 20px);
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
   </style>
@@ -596,6 +631,8 @@
       </section>
     </section>
   </main>
+
+  <div class="tools-copyright-badge" aria-label="版权声明">© 2026 Muimi · Tools</div>
 
   <footer class="site-footer">
     <div class="container">
