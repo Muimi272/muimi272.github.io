@@ -520,3 +520,13 @@
 			}
 		}
 
+		@media (hover: none) and (pointer: coarse) {
+			body {
+				padding-bottom: 0;
+			}
+
+			.tools-copyright-badge {
+				display: none;
+			}
+		}
+
