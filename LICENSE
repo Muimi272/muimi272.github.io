@@ -25,7 +25,16 @@ Any redistribution or derivative work must preserve author attribution.
 A visible credit in the README, About page, or equivalent location is
 strongly recommended, including the original repository reference.
 
-4. Disclaimer
+4. Special Restriction for Tools (No Commercial Use)
+All files under the `/tools/` directory, and assets that are dedicated
+to those tools, are strictly for non-commercial use only.
+
+Commercial use of these tool pages or tool code is NOT permitted without
+prior written authorization from the original author (Muimi).
+
+This clause overrides Section 2 for tool-related content.
+
+5. Disclaimer
 THIS PROJECT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
@@ -54,7 +63,16 @@ PROJECT OR THE USE OR OTHER DEALINGS IN THE PROJECT.
 任何再发布或衍生项目都应保留对原作者的署名。
 建议在 README、关于页面或等效位置标注原仓库来源。
 
-4. 免责声明
+4. 工具目录特别限制（禁止商用）
+`/tools/` 目录下的全部文件，以及专用于这些工具的资源文件，
+仅允许非商业使用。
+
+任何对这些工具页面或工具代码的商业使用，必须事先获得原作者
+（Muimi）书面授权，否则一律不允许。
+
+本条款对工具相关内容优先于第 2 条执行。
+
+5. 免责声明
 本项目按“现状”提供，不附带任何明示或暗示担保，
 包括但不限于适销性、特定用途适用性和不侵权担保。
 在任何情况下，作者或版权持有人均不对因使用本项目而产生的

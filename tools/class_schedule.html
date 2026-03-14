@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>课程表</title>
+	<link rel="stylesheet" href="class_schedule_assets/class_schedule.css">
+</head>
+<body>
+	<main class="container">
+		<header class="page-head">
+			<h1>我的课程表</h1>
+			<button id="themeToggle" class="theme-toggle" type="button" aria-label="切换主题">
+				<span class="theme-icon">◗</span>
+				<span class="theme-text">深色</span>
+			</button>
+		</header>
+
+		<section id="emptyState" class="empty-state panel">
+			<div class="empty-card">
+				<h2>请先导入课程表 JSON</h2>
+				<p>未检测到可用数据，导入后将自动展示本周课程。</p>
+				<div id="topUploadHost"></div>
+			</div>
+		</section>
+
+		<section id="scheduleSection" class="schedule-section panel">
+			<div class="schedule-head">
+				<h2 class="schedule-title">当前课程</h2>
+				<div id="currentDate" class="current-date"></div>
+			</div>
+			<div class="table-wrap">
+				<table id="scheduleTable" aria-label="课程表"></table>
+			</div>
+			<div id="bottomUploadHost" class="bottom-actions"></div>
+		</section>
+
+		<div id="uploadControls" class="upload-controls inline" aria-label="导入课程表">
+			<input id="jsonFile" type="file" accept=".json,application/json">
+			<button id="uploadBtn" class="btn-primary" type="button">导入并更新课程表</button>
+		</div>
+	</main>
+
+	<script src="class_schedule_assets/class_schedule.js"></script>
+</body>
+</html>
+
+
