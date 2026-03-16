@@ -24,9 +24,9 @@ const TOOL_ITEMS = [
     id: "class-schedule",
     name: "课程表",
     date: "2026-03-14",
-    description: "导入 JSON 课程数据后，自动生成可视化周课表，支持周末视图与深浅主题。",
+    description: "导入课程数据后，自动生成可视化周课表。",
     summary: "支持周末模式和移动端适配的可视化课程表工具。",
-    tags: ["效率", "课程", "JSON", "课表"],
+    tags: ["效率", "课程", "JSON", "课表", "在线", "工具"],
     keywords: ["课程表", "课表", "JSON", "导入", "时间管理", "Muimi"],
     detail: `
 <h2>一、工具用途</h2>
@@ -73,14 +73,14 @@ const TOOL_ITEMS = [
 <ol>
   <li>支持深色和浅色主题切换。</li>
   <li>移动端已适配，可横向滚动查看完整课表。</li>
-  <li>每天零点会自动刷新课表并播放过渡动画。</li>
+  <li>每天零点会自动刷新课表。</li>
 </ol>
 
 <h2>六、控制台日期控制（高级）</h2>
 <p>可在浏览器控制台使用以下方法切换显示日期：</p>
 <ol>
   <li><code>scheduleDateControl.help()</code>：查看可用命令。</li>
-  <li><code>scheduleDateControl.setDate("2026-03-14")</code>：设置显示日期。</li>
+  <li><code>scheduleDateControl.setDate("xxxx-xx-xx")</code>：设置显示日期。</li>
   <li><code>scheduleDateControl.getDate()</code>：获取当前显示日期。</li>
   <li><code>scheduleDateControl.resetDate()</code>：恢复系统日期。</li>
 </ol>

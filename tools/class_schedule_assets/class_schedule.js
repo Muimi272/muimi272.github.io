@@ -246,7 +246,7 @@
 	function exposeDateController() {
 		window.scheduleDateControl = {
 			help: function () {
-				console.log("scheduleDateControl.setDate('2026-03-14')");
+				console.log("scheduleDateControl.setDate('xxxx-xx-xx')");
 				console.log("scheduleDateControl.resetDate()");
 				console.log("scheduleDateControl.getDate()");
 			},
