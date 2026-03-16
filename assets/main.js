@@ -320,11 +320,59 @@ async function getPosts() {
   return postsCachePromise;
 }
 
+function showContentLoader(container, message) {
+  if (!container) return () => {};
+
+  const startedAt = performance.now();
+  container.setAttribute("aria-busy", "true");
+  container.innerHTML = `
+    <div class="content-loader" role="status" aria-live="polite">
+      <span class="content-loader-ring" aria-hidden="true"></span>
+      <p>${message}</p>
+    </div>
+  `;
+
+  let finished = false;
+  return () => {
+    if (finished) return;
+    finished = true;
+    const elapsed = performance.now() - startedAt;
+    const remain = Math.max(0, 180 - elapsed);
+    window.setTimeout(() => {
+      container.removeAttribute("aria-busy");
+    }, remain);
+  };
+}
+
+function getDebugLoadingDelay() {
+  const params = new URLSearchParams(window.location.search);
+  const raw = params.get("debugLoading");
+  if (!raw) return 0;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed < 0) return 0;
+  return Math.min(parsed, 10000);
+}
+
+function waitMs(ms) {
+  if (!ms) return Promise.resolve();
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+async function waitForDebugLoading() {
+  const delay = getDebugLoadingDelay();
+  if (delay > 0) {
+    await waitMs(delay);
+  }
+}
+
 async function renderPostList() {
   const postList = document.getElementById("postList");
   if (!postList) return;
 
-  const posts = await getPosts();
+  const stopLoading = showContentLoader(postList, "正在加载文章列表...");
+  let posts = [];
 
   const searchInput = document.getElementById("postSearch");
   const statusText = document.getElementById("searchStatus");
@@ -383,48 +431,76 @@ async function renderPostList() {
     updateStatus(filteredPosts.length);
   };
 
-  if (!searchInput) {
-    drawList(posts);
-    updateStatus(posts.length);
-    return;
+  try {
+    const [loadedPosts] = await Promise.all([getPosts(), waitForDebugLoading()]);
+    posts = loadedPosts;
+
+    if (!searchInput) {
+      drawList(posts);
+      updateStatus(posts.length);
+      return;
+    }
+
+    const initialKeyword = getInitialKeyword();
+    searchInput.value = initialKeyword;
+    filterAndRender(initialKeyword);
+
+    searchInput.addEventListener("input", (event) => {
+      const keywordRaw = event.target.value;
+      filterAndRender(keywordRaw);
+      updateSearchParam(keywordRaw.trim());
+    });
+  } catch (_) {
+    postList.innerHTML = `
+      <article class="card">
+        <h2>文章加载失败</h2>
+        <p>请稍后刷新页面重试。</p>
+      </article>
+    `;
+    if (statusText) {
+      statusText.textContent = "加载失败";
+    }
+  } finally {
+    stopLoading();
   }
-
-  const initialKeyword = getInitialKeyword();
-  searchInput.value = initialKeyword;
-  filterAndRender(initialKeyword);
-
-  searchInput.addEventListener("input", (event) => {
-    const keywordRaw = event.target.value;
-    filterAndRender(keywordRaw);
-    updateSearchParam(keywordRaw.trim());
-  });
 }
 
 async function renderPostDetail() {
   const container = document.getElementById("postDetail");
   if (!container) return;
 
-  const posts = await getPosts();
+  const stopLoading = showContentLoader(container, "正在加载文章内容...");
 
-  const params = new URLSearchParams(window.location.search);
-  const postId = params.get("id");
-  const post = posts.find((item) => item.id === postId);
+  try {
+    const [posts] = await Promise.all([getPosts(), waitForDebugLoading()]);
 
-  if (!post) {
-    updatePostNotFoundSeo();
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get("id");
+    const post = posts.find((item) => item.id === postId);
+
+    if (!post) {
+      updatePostNotFoundSeo();
+      container.innerHTML = `
+        <h1>文章未找到</h1>
+        <p>请从文章列表页重新选择文章。</p>
+      `;
+      return;
+    }
+
+    updatePostSeo(post);
     container.innerHTML = `
-      <h1>文章未找到</h1>
-      <p>请从文章列表页重新选择文章。</p>
+      <p class="meta">${post.date}</p>
+      <h1>${post.title}</h1>
+      <section class="article-body">${post.content}</section>
     `;
-    return;
+  } catch (_) {
+    container.innerHTML = `
+      <h1>文章加载失败</h1>
+      <p>请稍后刷新页面重试。</p>
+    `;
+  } finally {
+    stopLoading();
   }
-
-  updatePostSeo(post);
-  container.innerHTML = `
-    <p class="meta">${post.date}</p>
-    <h1>${post.title}</h1>
-    <section class="article-body">${post.content}</section>
-  `;
 }
 
 function renderRepoList() {
@@ -457,13 +533,28 @@ function normalizeToolItem(rawTool) {
   };
 }
 
-function renderToolList() {
+async function renderToolList() {
   const toolList = document.getElementById("toolList");
-  if (!toolList || typeof TOOL_ITEMS === "undefined" || !Array.isArray(TOOL_ITEMS)) return;
+  if (!toolList) return;
 
-  const tools = TOOL_ITEMS.map(normalizeToolItem).filter(Boolean);
-  const searchInput = document.getElementById("toolSearch");
-  const statusText = document.getElementById("toolSearchStatus");
+  const stopLoading = showContentLoader(toolList, "正在加载工具列表...");
+
+  try {
+    await waitForDebugLoading();
+
+    if (typeof TOOL_ITEMS === "undefined" || !Array.isArray(TOOL_ITEMS)) {
+      toolList.innerHTML = `
+        <article class="card tool-card">
+          <h2>工具加载失败</h2>
+          <p>请稍后刷新页面重试。</p>
+        </article>
+      `;
+      return;
+    }
+
+    const tools = TOOL_ITEMS.map(normalizeToolItem).filter(Boolean);
+    const searchInput = document.getElementById("toolSearch");
+    const statusText = document.getElementById("toolSearchStatus");
 
   function drawList(filteredTools) {
     if (!filteredTools.length) {
@@ -506,51 +597,70 @@ function renderToolList() {
     updateStatus(filtered.length);
   }
 
-  if (!searchInput) {
-    drawList(tools);
-    updateStatus(tools.length);
-    return;
-  }
+    if (!searchInput) {
+      drawList(tools);
+      updateStatus(tools.length);
+      return;
+    }
 
-  filterAndRender(searchInput.value || "");
-  searchInput.addEventListener("input", (event) => {
-    filterAndRender(event.target.value || "");
-  });
+    filterAndRender(searchInput.value || "");
+    searchInput.addEventListener("input", (event) => {
+      filterAndRender(event.target.value || "");
+    });
+  } finally {
+    stopLoading();
+  }
 }
 
-function renderToolDetail() {
+async function renderToolDetail() {
   const container = document.getElementById("toolDetail");
-  if (!container || typeof TOOL_ITEMS === "undefined" || !Array.isArray(TOOL_ITEMS)) return;
+  if (!container) return;
 
-  const tools = TOOL_ITEMS.map(normalizeToolItem).filter(Boolean);
-  const params = new URLSearchParams(window.location.search);
-  const toolId = params.get("id");
-  const tool = tools.find((item) => item.id === toolId);
+  const stopLoading = showContentLoader(container, "正在加载工具详情...");
 
-  if (!tool) {
-    updateToolNotFoundSeo();
+  try {
+    await waitForDebugLoading();
+
+    if (typeof TOOL_ITEMS === "undefined" || !Array.isArray(TOOL_ITEMS)) {
+      container.innerHTML = `
+        <h1>工具加载失败</h1>
+        <p>请稍后刷新页面重试。</p>
+      `;
+      return;
+    }
+
+    const tools = TOOL_ITEMS.map(normalizeToolItem).filter(Boolean);
+    const params = new URLSearchParams(window.location.search);
+    const toolId = params.get("id");
+    const tool = tools.find((item) => item.id === toolId);
+
+    if (!tool) {
+      updateToolNotFoundSeo();
+      container.innerHTML = `
+        <h1>工具未找到</h1>
+        <p>请从工具列表页重新选择。</p>
+      `;
+      return;
+    }
+
+    updateToolSeo(tool);
+    const tagsHtml = tool.tags.length
+      ? `<p class="tool-tags">${tool.tags.map((tag) => `<span>${tag}</span>`).join("")}</p>`
+      : "";
+
     container.innerHTML = `
-      <h1>工具未找到</h1>
-      <p>请从工具列表页重新选择。</p>
+      <p class="meta">${tool.date || ""}</p>
+      <h1>${tool.name}</h1>
+      <p>${tool.summary || tool.description}</p>
+      ${tagsHtml}
+      <section class="article-body">${tool.detail || `<p>${tool.description}</p>`}</section>
+      <div class="button-row">
+        <a class="btn btn-primary" href="${tool.page}">在线使用</a>
+      </div>
     `;
-    return;
+  } finally {
+    stopLoading();
   }
-
-  updateToolSeo(tool);
-  const tagsHtml = tool.tags.length
-    ? `<p class="tool-tags">${tool.tags.map((tag) => `<span>${tag}</span>`).join("")}</p>`
-    : "";
-
-  container.innerHTML = `
-    <p class="meta">${tool.date || ""}</p>
-    <h1>${tool.name}</h1>
-    <p>${tool.summary || tool.description}</p>
-    ${tagsHtml}
-    <section class="article-body">${tool.detail || `<p>${tool.description}</p>`}</section>
-    <div class="button-row">
-      <a class="btn btn-primary" href="${tool.page}">在线使用</a>
-    </div>
-  `;
 }
 
 async function renderHomeFeaturedPost() {
