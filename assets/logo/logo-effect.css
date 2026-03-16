@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+/* Muimi variable font interactive logo effect */
+.logo-title {
+  display: inline-block;
+  color: var(--text-primary);
+  font-family: 'Inter', 'Segoe UI Variable', 'Segoe UI', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 200;
+  font-synthesis: none;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  user-select: none;
+  will-change: transform;
+}
+
+.logo-char {
+  display: inline-block;
+  font-family: inherit;
+  font-weight: inherit;
+  font-variation-settings: 'wght' 200;
+  transition: font-variation-settings 0.08s linear;
+  text-align: center;
+}
