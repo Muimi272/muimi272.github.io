@@ -164,6 +164,17 @@ const TOOL_ITEMS = [
 </ol>
 `,
     page: "tools/class_schedule.html"
+  },
+  {
+    id: "realtime-weather-map",
+    name: "实时天气地图",
+    date: "2026-03-18",
+    description: "基于地图选点查看实时天气与 24 小时预报。",
+    summary: "地图选点 + 实时天气 + 24 小时预报的一体化天气查看工具。",
+    tags: ["天气", "地图", "实时", "预报", "Leaflet", "在线工具"],
+    keywords: ["实时天气地图", "天气", "地图", "24小时预报", "Open-Meteo", "Muimi"],
+    detail: "<p>实时天气地图支持在地图上点击任意位置，快速查看该地点的实时天气信息与未来 24 小时预报。</p><p>页面内置常用城市快捷按钮，支持中英双语切换与定位到当前位置，适合日常快速查天气与出行前参考。</p>",
+    page: "tools/realtime_weather_map.html"
   }
 ];
 

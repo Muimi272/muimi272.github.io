@@ -94,6 +94,10 @@
 └── tools/
     ├── snake.html
     ├── class_schedule.html
+    ├── realtime_weather_map.html
+    ├── realtime_weather_map/
+    │   ├── styles.css
+    │   └── script.js
     └── class_schedule_assets/
         ├── class_schedule.css
         └── class_schedule.js

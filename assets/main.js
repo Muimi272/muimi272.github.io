@@ -528,7 +528,9 @@ function normalizeToolItem(rawTool) {
     summary: String(rawTool.summary || rawTool.description || ""),
     detail: String(rawTool.detail || ""),
     page: String(rawTool.page),
-    keywords: Array.isArray(rawTool.keywords) ? rawTool.keywords : [],
+    keywords: Array.isArray(rawTool.keywords)
+      ? rawTool.keywords.map((keyword) => String(keyword).trim()).filter(Boolean)
+      : [],
     tags: Array.isArray(rawTool.tags) ? rawTool.tags.map((tag) => String(tag).trim()).filter(Boolean) : []
   };
 }
@@ -590,7 +592,7 @@ async function renderToolList() {
   function filterAndRender(keywordRaw) {
     const keyword = String(keywordRaw || "").trim().toLowerCase();
     const filtered = tools.filter((tool) => {
-      const text = `${tool.name} ${tool.description} ${tool.tags.join(" ")}`.toLowerCase();
+      const text = `${tool.name} ${tool.description} ${tool.summary} ${tool.tags.join(" ")} ${tool.keywords.join(" ")}`.toLowerCase();
       return text.includes(keyword);
     });
     drawList(filtered);

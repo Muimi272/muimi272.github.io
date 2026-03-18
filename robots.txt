@@ -1,4 +1,4 @@
-# Updated: 2026-03-14
+# Updated: 2026-03-18
 User-agent: *
 Allow: /
 Sitemap: https://muimi.club/sitemap.xml

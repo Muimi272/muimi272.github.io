@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>实时天气地图 | Muimi</title>
+  <meta name="description" content="实时天气地图工具，支持地图选点查看当前天气、体感温度、风速风向与 24 小时天气预报。" />
+  <meta name="keywords" content="实时天气地图,天气地图,在线天气,24小时预报,天气预报,Open-Meteo,Leaflet,Muimi" />
+  <meta name="author" content="Muimi" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <link rel="canonical" href="https://muimi.club/tools/realtime_weather_map.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Muimi" />
+  <meta property="og:title" content="实时天气地图 | Muimi" />
+  <meta property="og:description" content="实时天气地图工具，支持地图选点查看当前天气、体感温度、风速风向与 24 小时天气预报。" />
+  <meta property="og:url" content="https://muimi.club/tools/realtime_weather_map.html" />
+  <meta property="og:image" content="https://muimi.club/assets/og-image.svg" />
+  <meta property="og:image:type" content="image/svg+xml" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="实时天气地图 | Muimi" />
+  <meta name="twitter:description" content="实时天气地图工具，支持地图选点查看当前天气、体感温度、风速风向与 24 小时天气预报。" />
+  <meta name="twitter:image" content="https://muimi.club/assets/og-image.svg" />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "实时天气地图",
+      "url": "https://muimi.club/tools/realtime_weather_map.html",
+      "description": "实时天气地图工具，支持地图选点查看当前天气、体感温度、风速风向与 24 小时天气预报。",
+      "applicationCategory": "WeatherApplication",
+      "operatingSystem": "Any",
+      "inLanguage": "zh-CN",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Muimi",
+        "url": "https://muimi.club/"
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://webrd01.is.autonavi.com" crossorigin />
+  <link rel="dns-prefetch" href="https://webrd01.is.autonavi.com" />
+  <link rel="dns-prefetch" href="https://webrd02.is.autonavi.com" />
+  <link rel="dns-prefetch" href="https://webrd03.is.autonavi.com" />
+  <link rel="dns-prefetch" href="https://webrd04.is.autonavi.com" />
+  <link rel="dns-prefetch" href="https://api.open-meteo.com" />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&family=Space+Grotesk:wght@300..700&display=swap"
+  />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <link rel="stylesheet" href="realtime_weather_map/styles.css" />
+</head>
+<body>
+  <div class="cursor-glow" aria-hidden="true"></div>
+  <div class="ambient" aria-hidden="true"></div>
+  <div class="blobs" aria-hidden="true">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    <span class="blob b3"></span>
+  </div>
+
+  <header class="header">
+    <div class="header-top">
+      <p class="eyebrow" id="eyebrowText">Live Weather</p>
+      <button id="langToggle" class="lang-toggle" type="button" aria-label="Switch language" title="Switch language">中 / EN</button>
+    </div>
+    <h1 id="heroTitle">实时天气地图</h1>
+    <p class="subtitle" id="heroSubtitle">Tap anywhere on the map.</p>
+
+    <div class="quick-picks" id="quickPicks">
+      <button class="quick-btn" data-lat="39.9042" data-lon="116.4074" data-name-zh="北京" data-name-en="Beijing">北京</button>
+      <button class="quick-btn" data-lat="31.2304" data-lon="121.4737" data-name-zh="上海" data-name-en="Shanghai">上海</button>
+      <button class="quick-btn" data-lat="23.1291" data-lon="113.2644" data-name-zh="广州" data-name-en="Guangzhou">广州</button>
+      <button class="quick-btn" data-lat="22.5431" data-lon="114.0579" data-name-zh="深圳" data-name-en="Shenzhen">深圳</button>
+      <button class="quick-btn" data-lat="30.5728" data-lon="104.0668" data-name-zh="成都" data-name-en="Chengdu">成都</button>
+      <button class="quick-btn" data-lat="30.5928" data-lon="114.3055" data-name-zh="武汉" data-name-en="Wuhan">武汉</button>
+      <button id="locateMeBtn" class="quick-btn accent" type="button">使用我的位置</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel map-panel">
+      <div class="panel-head">
+        <h2 id="mapTitle">地图</h2>
+        <p id="mapHint">Select a point</p>
+      </div>
+      <div class="map-shell">
+        <div id="map"></div>
+      </div>
+    </section>
+
+    <aside class="panel side-panel">
+      <div class="panel-head">
+        <h2 id="nowTitle">当前天气</h2>
+        <span id="statusBadge" class="badge pending">Waiting</span>
+      </div>
+
+      <div class="meta-grid">
+        <article>
+          <span class="label" id="latLabel">纬度</span>
+          <strong id="lat">--</strong>
+        </article>
+        <article>
+          <span class="label" id="lonLabel">经度</span>
+          <strong id="lon">--</strong>
+        </article>
+        <article>
+          <span class="label" id="timezoneLabel">时区</span>
+          <strong id="timezone">--</strong>
+        </article>
+        <article>
+          <span class="label" id="updatedLabel">更新时间</span>
+          <strong id="updatedAt">--</strong>
+        </article>
+      </div>
+
+      <div class="current-box">
+        <p class="current-title" id="currentTitle">实时状况</p>
+        <p class="temperature"><span id="temp">--</span><small>°C</small></p>
+        <p class="desc" id="weatherDesc">No location selected yet.</p>
+      </div>
+
+      <ul class="facts" id="factsList">
+        <li>Humidity: --</li>
+        <li>Feels like: --</li>
+        <li>Wind speed: --</li>
+        <li>Wind direction: --</li>
+        <li>Precipitation: --</li>
+      </ul>
+
+      <div class="actions">
+        <button id="refreshBtn" type="button">Refresh</button>
+        <p id="autoRefresh">--</p>
+      </div>
+    </aside>
+
+    <section class="panel forecast-panel">
+      <div class="forecast-wrap standalone">
+        <h3 id="forecastTitle">24H Forecast</h3>
+        <div id="forecast" class="forecast-grid" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" aria-label="Copyright">
+    <p>© 2026 Muimi</p>
+  </footer>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+    defer
+  ></script>
+  <script src="realtime_weather_map/script.js" defer></script>
+</body>
+</html>
