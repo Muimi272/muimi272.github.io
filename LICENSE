@@ -1,83 +1,47 @@
-MUIMI PERSONAL BLOG LICENSE 1.0
+Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International
 
 Copyright (c) 2026 Muimi
 
-=====================================================================
-English Version
-=====================================================================
+This work is licensed under the Creative Commons
+Attribution-NonCommercial-NoDerivatives 4.0 International License (CC BY-NC-ND 4.0).
 
-1. Permission (Non-Commercial Use)
-You are free to use, copy, modify, and redistribute this project for
-non-commercial purposes, including personal learning, education,
-non-profit activities, and open community sharing.
+You are free to:
+- Share: copy and redistribute the material in any medium or format.
 
-2. Commercial Use Condition
-Commercial use is permitted only if the derivative or redistributed
-project remains open source.
+Under the following terms:
+- Attribution: You must give appropriate credit, provide a link to the license,
+	and indicate if changes were made.
+- NonCommercial: You may not use the material for commercial purposes.
+- NoDerivatives: If you remix, transform, or build upon the material,
+	you may not distribute the modified material.
 
-If you use this project in any commercial scenario, you MUST:
-- publish the complete corresponding source code of your derivative work;
-- keep this license text in your project;
-- provide clear attribution to the original author (Muimi).
+No additional restrictions:
+- You may not apply legal terms or technological measures that legally restrict
+	others from doing anything the license permits.
 
-3. Attribution
-Any redistribution or derivative work must preserve author attribution.
-A visible credit in the README, About page, or equivalent location is
-strongly recommended, including the original repository reference.
+License URL:
+https://creativecommons.org/licenses/by-nc-nd/4.0/
 
-4. Special Restriction for Tools (No Commercial Use)
-All files under the `/tools/` directory, and assets that are dedicated
-to those tools, are strictly for non-commercial use only.
-
-Commercial use of these tool pages or tool code is NOT permitted without
-prior written authorization from the original author (Muimi).
-
-This clause overrides Section 2 for tool-related content.
-
-5. Disclaimer
-THIS PROJECT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE
-PROJECT OR THE USE OR OTHER DEALINGS IN THE PROJECT.
+Human-readable summary (not a substitute for the license):
+https://creativecommons.org/licenses/by-nc-nd/4.0/deed
 
 =====================================================================
-中文版本
+中文说明（便于理解，具体以官方许可文本为准）
 =====================================================================
 
-1. 许可范围（非商业）
-你可以在非商业场景下自由使用、复制、修改和再发布本项目代码，
-包括个人学习、教学、非营利项目与开源交流。
+本作品采用 知识共享 署名-非商业性使用-禁止演绎 4.0 国际 许可协议
+（CC BY-NC-ND 4.0）。
 
-2. 商业使用条件
-允许商业使用本项目，但前提是衍生项目必须保持开源。
+你可以：
+- 共享：以任何媒介和形式复制、发行本作品。
 
-若你在任何商业场景中使用本项目，你必须：
-- 公开衍生项目的完整对应源代码；
-- 在项目中保留本许可文本；
-- 明确保留原作者署名（Muimi）。
+惟须遵守下列条件：
+- 署名：必须给出适当署名，提供许可协议链接，并标明是否作出修改。
+- 非商业性使用：不得将本作品用于商业目的。
+- 禁止演绎：如果你再混合、转换或者基于本作品创作，你不得分发修改后的作品。
 
-3. 署名要求
-任何再发布或衍生项目都应保留对原作者的署名。
-建议在 README、关于页面或等效位置标注原仓库来源。
+不得附加额外限制：
+- 不得施加法律条款或技术措施，来限制他人进行本许可协议允许的行为。
 
-4. 工具目录特别限制（禁止商用）
-`/tools/` 目录下的全部文件，以及专用于这些工具的资源文件，
-仅允许非商业使用。
-
-任何对这些工具页面或工具代码的商业使用，必须事先获得原作者
-（Muimi）书面授权，否则一律不允许。
-
-本条款对工具相关内容优先于第 2 条执行。
-
-5. 免责声明
-本项目按“现状”提供，不附带任何明示或暗示担保，
-包括但不限于适销性、特定用途适用性和不侵权担保。
-在任何情况下，作者或版权持有人均不对因使用本项目而产生的
-任何索赔、损害或其他责任承担责任。
-
-By using, copying, modifying, or redistributing this project, you agree
-to the terms above.
-使用、复制、修改或再发布本项目即视为你同意上述条款。
+官方许可链接：
+https://creativecommons.org/licenses/by-nc-nd/4.0/
