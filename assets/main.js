@@ -249,6 +249,13 @@ function stripHtml(text) {
   return String(text || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
+const FOOTNOTE_BACKREF_ICON = `
+  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M9 7H6m0 0 3-3M6 7l3 3" />
+    <path d="M20 20v-7a6 6 0 0 0-6-6H6" />
+  </svg>
+`;
+
 function enhanceRichContentTables(scope) {
   if (!scope) return;
 
@@ -261,6 +268,22 @@ function enhanceRichContentTables(scope) {
     wrapper.className = "article-table-wrap";
     table.parentNode.insertBefore(wrapper, table);
     wrapper.appendChild(table);
+  });
+}
+
+function enhanceFootnoteBackrefs(scope) {
+  if (!scope) return;
+
+  const backrefs = scope.querySelectorAll(".footnote-backref");
+  backrefs.forEach((backref) => {
+    if (backref.querySelector("svg")) return;
+    backref.innerHTML = FOOTNOTE_BACKREF_ICON;
+    if (!backref.getAttribute("aria-label")) {
+      backref.setAttribute("aria-label", "返回正文");
+    }
+    if (!backref.getAttribute("title") || backref.getAttribute("title").includes("Jump back")) {
+      backref.setAttribute("title", "返回正文");
+    }
   });
 }
 
@@ -508,7 +531,9 @@ async function renderPostDetail() {
       <h1>${post.title}</h1>
       <section class="article-body">${post.content}</section>
     `;
-    enhanceRichContentTables(container.querySelector(".article-body"));
+    const articleBody = container.querySelector(".article-body");
+    enhanceRichContentTables(articleBody);
+    enhanceFootnoteBackrefs(articleBody);
   } catch (_) {
     container.innerHTML = `
       <h1>文章加载失败</h1>
@@ -676,7 +701,9 @@ async function renderToolDetail() {
         <a class="btn btn-primary" href="${tool.page}">在线使用</a>
       </div>
     `;
-    enhanceRichContentTables(container.querySelector(".article-body"));
+    const articleBody = container.querySelector(".article-body");
+    enhanceRichContentTables(articleBody);
+    enhanceFootnoteBackrefs(articleBody);
   } finally {
     stopLoading();
   }

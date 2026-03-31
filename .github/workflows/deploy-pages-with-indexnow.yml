@@ -1,0 +1,194 @@
+name: Deploy Pages with IndexNow
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  INDEXNOW_ENDPOINT: https://www.bing.com/indexnow
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare Pages artifact
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+        run: |
+          set -euo pipefail
+
+          site_dir="$RUNNER_TEMP/site"
+          rm -rf "$site_dir"
+          mkdir -p "$site_dir"
+          touch "$site_dir/.nojekyll"
+
+          while IFS= read -r -d '' file; do
+            case "$file" in
+              .github/*|.gitignore|README.md)
+                continue
+                ;;
+            esac
+
+            mkdir -p "$site_dir/$(dirname "$file")"
+            cp "$file" "$site_dir/$file"
+          done < <(git ls-files -z)
+
+          if [ -n "${INDEXNOW_KEY:-}" ]; then
+            printf '%s' "$INDEXNOW_KEY" > "$site_dir/${INDEXNOW_KEY}.txt"
+            echo "Prepared IndexNow key file: ${INDEXNOW_KEY}.txt"
+          else
+            echo "::warning::INDEXNOW_KEY secret is not configured. GitHub Pages will still deploy, but IndexNow submission will be skipped."
+          fi
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  notify-indexnow:
+    needs:
+      - deploy
+    if: ${{ needs.deploy.result == 'success' && secrets.INDEXNOW_KEY != '' }}
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Submit sitemap URLs to Bing IndexNow
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+          INDEXNOW_ENDPOINT: ${{ env.INDEXNOW_ENDPOINT }}
+        run: |
+          python <<'PY'
+          import json
+          import os
+          import sys
+          import time
+          import urllib.request
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          root = Path(".")
+          sitemap_path = root / "sitemap.xml"
+          cname_path = root / "CNAME"
+          key = os.environ["INDEXNOW_KEY"].strip()
+          endpoint = os.environ["INDEXNOW_ENDPOINT"].strip()
+
+          if not sitemap_path.exists():
+              print("::error::sitemap.xml not found.")
+              sys.exit(1)
+
+          if not cname_path.exists():
+              print("::error::CNAME not found. This workflow expects your production host to be defined in CNAME.")
+              sys.exit(1)
+
+          host = cname_path.read_text(encoding="utf-8").strip()
+          if not host:
+              print("::error::CNAME is empty.")
+              sys.exit(1)
+
+          key_url = f"https://{host}/{key}.txt"
+          ns = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+          xml_root = ET.fromstring(sitemap_path.read_text(encoding="utf-8"))
+
+          url_list = []
+          for node in xml_root.findall(".//sm:loc", ns):
+              url = (node.text or "").strip()
+              if not url:
+                  continue
+
+              parsed = urlparse(url)
+              if parsed.scheme != "https" or parsed.netloc != host:
+                  print(f"::warning::Skipping URL outside https://{host}: {url}")
+                  continue
+
+              url_list.append(url)
+
+          url_list = list(dict.fromkeys(url_list))
+          if not url_list:
+              print("::warning::No eligible URLs found in sitemap.xml. Skipping IndexNow submission.")
+              sys.exit(0)
+
+          print(f"Collected {len(url_list)} URL(s) from sitemap.xml")
+
+          key_check_ok = False
+          for attempt in range(1, 13):
+              try:
+                  with urllib.request.urlopen(key_url, timeout=15) as response:
+                      body = response.read().decode("utf-8", "replace").strip()
+                      if response.status == 200 and body == key:
+                          key_check_ok = True
+                          print(f"Verified IndexNow key file on attempt {attempt}: {key_url}")
+                          break
+                      print(f"Key file check attempt {attempt} returned unexpected body/status.")
+              except Exception as exc:
+                  print(f"Key file check attempt {attempt} failed: {exc}")
+
+              time.sleep(10)
+
+          if not key_check_ok:
+              print("::error::The deployed IndexNow key file is not reachable or its content does not match the configured secret.")
+              sys.exit(1)
+
+          payload = {
+              "host": host,
+              "key": key,
+              "keyLocation": key_url,
+              "urlList": url_list,
+          }
+
+          request = urllib.request.Request(
+              endpoint,
+              data=json.dumps(payload).encode("utf-8"),
+              headers={"Content-Type": "application/json; charset=utf-8"},
+              method="POST",
+          )
+
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  body = response.read().decode("utf-8", "replace")
+                  print(f"IndexNow response status: {response.status}")
+                  if body:
+                      print(body[:2000])
+                  if response.status >= 400:
+                      sys.exit(1)
+          except Exception as exc:
+              print(f"::error::IndexNow submission failed: {exc}")
+              sys.exit(1)
+          PY

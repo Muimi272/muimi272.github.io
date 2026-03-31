@@ -1091,8 +1091,7 @@ code {
   background: color-mix(in srgb, var(--brand) 14%, transparent);
   color: var(--brand);
   text-decoration: none;
-  font-size: 0.82rem;
-  font-weight: 700;
+  line-height: 0;
   transition: background-color var(--theme-transition-fast), color var(--theme-transition-fast), transform 0.22s ease;
 }
 
@@ -1101,6 +1100,17 @@ code {
   background: color-mix(in srgb, var(--brand) 24%, transparent);
   color: color-mix(in srgb, var(--brand) 88%, var(--text));
   transform: translateX(-1px);
+}
+
+.article-body .footnote-backref svg {
+  width: 0.82rem;
+  height: 0.82rem;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 :root.light .article-table-wrap {
