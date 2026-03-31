@@ -79,20 +79,32 @@ jobs:
   notify-indexnow:
     needs:
       - deploy
-    if: ${{ needs.deploy.result == 'success' && secrets.INDEXNOW_KEY != '' }}
+    if: ${{ needs.deploy.result == 'success' }}
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
 
+    env:
+      INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+      INDEXNOW_ENDPOINT: https://www.bing.com/indexnow
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check IndexNow configuration
+        id: check_indexnow
+        run: |
+          if [ -z "${INDEXNOW_KEY:-}" ]; then
+            echo "::warning::INDEXNOW_KEY secret is not configured. Skipping IndexNow submission."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Submit sitemap URLs to Bing IndexNow
-        env:
-          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
-          INDEXNOW_ENDPOINT: ${{ env.INDEXNOW_ENDPOINT }}
+        if: ${{ steps.check_indexnow.outputs.enabled == 'true' }}
         run: |
           python <<'PY'
           import json
