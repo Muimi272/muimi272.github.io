@@ -249,6 +249,21 @@ function stripHtml(text) {
   return String(text || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
+function enhanceRichContentTables(scope) {
+  if (!scope) return;
+
+  const tables = scope.querySelectorAll("table");
+  tables.forEach((table) => {
+    const parent = table.parentElement;
+    if (parent && parent.classList.contains("article-table-wrap")) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "article-table-wrap";
+    table.parentNode.insertBefore(wrapper, table);
+    wrapper.appendChild(table);
+  });
+}
+
 function normalizePost(rawPost, sourcePath) {
   if (!rawPost || !rawPost.title) return null;
 
@@ -493,6 +508,7 @@ async function renderPostDetail() {
       <h1>${post.title}</h1>
       <section class="article-body">${post.content}</section>
     `;
+    enhanceRichContentTables(container.querySelector(".article-body"));
   } catch (_) {
     container.innerHTML = `
       <h1>文章加载失败</h1>
@@ -660,6 +676,7 @@ async function renderToolDetail() {
         <a class="btn btn-primary" href="${tool.page}">在线使用</a>
       </div>
     `;
+    enhanceRichContentTables(container.querySelector(".article-body"));
   } finally {
     stopLoading();
   }

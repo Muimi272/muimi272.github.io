@@ -5,7 +5,8 @@ const BLOG_CONTENT_CONFIG = {
 };
 
 const DEFAULT_ARTICLE_FILES = [
-  "articles/3.json"
+  "articles/2.json",
+  "articles/1.json"
 ];
 
 const TOOL_ITEMS = [
@@ -196,7 +197,7 @@ const GITHUB_REPOS = [
   },
   {
     name: "XLSXLoader",
-    description: "一个轻量级的 Java XLSX 解析库，用于读取 .xlsx 文件中的工作表名称、工作表 ID，以及按工作表读取二维字符串数据。",
+    description: "一个仅依赖 Java 标准库的轻量级 XLSX 解析库，支持读取工作表元数据与二维字符串数据，适合资源受限场景。",
     url: "https://github.com/Muimi272/XLSXLoader"
   },
   {

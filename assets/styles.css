@@ -449,6 +449,42 @@ body.is-404 .page-404 .page-hero h1 {
   transition: color var(--theme-transition-fast);
 }
 
+.article-body > :first-child {
+  margin-top: 0;
+}
+
+.article-body > :last-child {
+  margin-bottom: 0;
+}
+
+.article-body a:not(.footnote-ref):not(.footnote-backref) {
+  color: var(--brand);
+  font-weight: 600;
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 1.5px;
+  transition:
+    color var(--theme-transition-fast),
+    background-size 0.24s ease,
+    background-position 0.24s ease,
+    box-shadow var(--theme-transition-fast);
+}
+
+.article-body a:not(.footnote-ref):not(.footnote-backref):hover,
+.article-body a:not(.footnote-ref):not(.footnote-backref):focus-visible {
+  color: color-mix(in srgb, var(--brand) 88%, var(--text));
+  background-size: 100% 2px;
+  background-position: 0 calc(100% - 1px);
+}
+
+.article-body a:not(.footnote-ref):not(.footnote-backref):focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--brand) 48%, transparent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
 .highlight {
   color: var(--brand);
   transition: color var(--theme-transition-fast);
@@ -826,17 +862,53 @@ code {
 
 .article-body pre {
   margin: 18px 0;
-  padding: 16px 18px;
+  padding: 16px 18px 14px;
   background: color-mix(in srgb, var(--surface-2) 65%, #000000 35%);
   border: 1px solid color-mix(in srgb, var(--line) 80%, #000000 20%);
   border-radius: 12px;
   overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--brand) 58%, var(--line)) transparent;
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 12%, transparent);
 }
 
 :root.light .article-body pre {
   background: color-mix(in srgb, #ffffff 75%, var(--surface-2) 25%);
   border-color: color-mix(in srgb, var(--line) 70%, #ffffff 30%);
+}
+
+.article-body pre::-webkit-scrollbar {
+  height: 12px;
+}
+
+.article-body pre::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--surface) 34%, transparent);
+  border-radius: 999px;
+}
+
+.article-body pre::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--brand) 62%, var(--surface-2)) 0%,
+    color-mix(in srgb, var(--brand-strong) 72%, var(--surface-2)) 100%
+  );
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.article-body pre::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--brand) 78%, var(--surface-2)) 0%,
+    color-mix(in srgb, var(--brand-strong) 88%, var(--surface-2)) 100%
+  );
+}
+
+:root.light .article-body pre::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--surface-2) 24%, #ffffff 76%);
 }
 
 .article-body pre code {
@@ -849,6 +921,223 @@ code {
   white-space: pre;
   overflow-wrap: normal;
   word-break: normal;
+}
+
+.article-table-wrap {
+  margin: 22px 0;
+  overflow-x: auto;
+  border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface-2) 34%, transparent) 0%, transparent 100%),
+    color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--text) 8%, transparent),
+    0 12px 26px color-mix(in srgb, var(--bg) 12%, transparent);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--brand) 56%, var(--line)) transparent;
+}
+
+.article-table-wrap::-webkit-scrollbar {
+  height: 10px;
+}
+
+.article-table-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.article-table-wrap::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--brand) 54%, var(--line));
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.article-body table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.96rem;
+  line-height: 1.6;
+}
+
+.article-body thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--brand) 16%, transparent) 0%, color-mix(in srgb, var(--surface-2) 88%, transparent) 100%);
+  color: var(--text);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.article-body th,
+.article-body td {
+  padding: 14px 16px;
+  text-align: left;
+  vertical-align: top;
+  border-right: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+}
+
+.article-body th:last-child,
+.article-body td:last-child {
+  border-right: 0;
+}
+
+.article-body tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.article-body tbody tr:nth-child(odd) td {
+  background: color-mix(in srgb, var(--surface-2) 22%, transparent);
+}
+
+.article-body tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--surface) 18%, transparent);
+}
+
+.article-body tbody tr:hover td {
+  background: color-mix(in srgb, var(--brand) 12%, var(--surface-2));
+}
+
+.article-body th code,
+.article-body td code {
+  white-space: nowrap;
+}
+
+.article-body sup {
+  line-height: 0;
+}
+
+.article-body .footnote-ref {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.45rem;
+  height: 1.45rem;
+  margin: 0 0.16rem;
+  padding: 0 0.28rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand) 18%, transparent);
+  color: var(--brand);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-decoration: none;
+  vertical-align: super;
+  transition: background-color var(--theme-transition-fast), color var(--theme-transition-fast), transform 0.22s ease;
+}
+
+.article-body .footnote-ref:hover,
+.article-body .footnote-ref:focus-visible {
+  background: color-mix(in srgb, var(--brand) 28%, transparent);
+  color: color-mix(in srgb, var(--brand) 88%, var(--text));
+  transform: translateY(-1px);
+}
+
+.article-body .footnote {
+  margin-top: 34px;
+  padding: 18px 20px 16px;
+  border: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface-2) 20%, transparent) 0%, transparent 100%),
+    color-mix(in srgb, var(--surface) 95%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--text) 8%, transparent),
+    0 12px 24px color-mix(in srgb, var(--bg) 10%, transparent);
+}
+
+.article-body .footnote > hr {
+  margin: 0 0 14px;
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--brand) 42%, transparent) 0%, color-mix(in srgb, var(--line) 82%, transparent) 100%);
+}
+
+.article-body .footnote ol {
+  margin: 0;
+  padding-left: 1.4rem;
+}
+
+.article-body .footnote li + li {
+  margin-top: 10px;
+}
+
+.article-body .footnote li::marker {
+  color: var(--brand);
+  font-weight: 700;
+}
+
+.article-body .footnote p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.article-body .footnote a {
+  color: var(--brand);
+}
+
+.article-body .footnote-backref {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  margin-left: 0.38rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand) 14%, transparent);
+  color: var(--brand);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: background-color var(--theme-transition-fast), color var(--theme-transition-fast), transform 0.22s ease;
+}
+
+.article-body .footnote-backref:hover,
+.article-body .footnote-backref:focus-visible {
+  background: color-mix(in srgb, var(--brand) 24%, transparent);
+  color: color-mix(in srgb, var(--brand) 88%, var(--text));
+  transform: translateX(-1px);
+}
+
+:root.light .article-table-wrap {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--brand) 10%, #ffffff 90%) 0%, #f7fbff 100%),
+    #f7fbff;
+  border-color: color-mix(in srgb, var(--line) 72%, #ffffff 28%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    0 10px 22px rgba(40, 78, 126, 0.08);
+}
+
+:root.light .article-body thead th {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--brand) 14%, #ffffff 86%) 0%, color-mix(in srgb, var(--surface) 92%, #ffffff 8%) 100%);
+}
+
+:root.light .article-body tbody tr:nth-child(odd) td {
+  background: color-mix(in srgb, var(--surface) 78%, #ffffff 22%);
+}
+
+:root.light .article-body tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--surface-2) 18%, #ffffff 82%);
+}
+
+:root.light .article-body tbody tr:hover td {
+  background: color-mix(in srgb, var(--brand) 14%, #ffffff 86%);
+}
+
+:root.light .article-body .footnote {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--brand) 10%, #ffffff 90%) 0%, #f8fbff 100%),
+    #f8fbff;
+  border-color: color-mix(in srgb, var(--line) 72%, #ffffff 28%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.84),
+    0 10px 22px rgba(40, 78, 126, 0.08);
 }
 
 .site-footer {
@@ -1072,5 +1361,19 @@ code {
 
   .profile-head {
     margin-bottom: 12px;
+  }
+
+  .article-table-wrap {
+    margin: 18px -4px;
+    border-radius: 12px;
+  }
+
+  .article-body table {
+    font-size: 0.9rem;
+  }
+
+  .article-body th,
+  .article-body td {
+    padding: 12px 13px;
   }
 }
