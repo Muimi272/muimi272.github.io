@@ -244,6 +244,7 @@ function updateToolNotFoundSeo() {
 }
 
 let postsCachePromise;
+let articleIndexEntriesPromise;
 
 function stripHtml(text) {
   return String(text || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
@@ -310,42 +311,88 @@ function sortPostsByDateDesc(postList) {
 }
 
 async function loadArticleFilesFromIndex() {
-  const indexFile = (BLOG_CONTENT_CONFIG && BLOG_CONTENT_CONFIG.articleIndexFile) || "articles/index.json";
+  const entries = await loadArticleIndexEntries();
+  return entries.map((entry) => entry.filePath);
+}
 
-  try {
-    const response = await fetch(indexFile, { cache: "no-store" });
-    if (response.ok) {
-      const indexData = await response.json();
-      if (Array.isArray(indexData)) {
-        return indexData;
+function normalizeArticleIndexEntries(indexData) {
+  if (Array.isArray(indexData)) {
+    return indexData.map((item) => {
+      if (typeof item === "string") {
+        return {
+          filePath: item,
+          id: (item.split("/").pop() || "").replace(/\.json$/i, "")
+        };
       }
-      if (indexData && Array.isArray(indexData.files)) {
-        return indexData.files;
-      }
-    }
-  } catch (_) {
+
+      if (!item || typeof item !== "object") return null;
+      const filePath = String(item.filePath || item.file || item.path || "").trim();
+      if (!filePath) return null;
+
+      const fallbackId = (filePath.split("/").pop() || "").replace(/\.json$/i, "");
+      return {
+        filePath,
+        id: String(item.id || fallbackId)
+      };
+    }).filter(Boolean);
   }
 
-  if (typeof DEFAULT_ARTICLE_FILES !== "undefined" && Array.isArray(DEFAULT_ARTICLE_FILES)) {
-    return DEFAULT_ARTICLE_FILES;
+  if (indexData && Array.isArray(indexData.files)) {
+    return indexData.files.map((filePath) => ({
+      filePath,
+      id: (String(filePath).split("/").pop() || "").replace(/\.json$/i, "")
+    }));
   }
 
   return [];
 }
 
+async function loadArticleIndexEntries() {
+  if (articleIndexEntriesPromise) {
+    return articleIndexEntriesPromise;
+  }
+
+  articleIndexEntriesPromise = (async () => {
+    const indexFile = (BLOG_CONTENT_CONFIG && BLOG_CONTENT_CONFIG.articleIndexFile) || "articles/index.json";
+
+    try {
+      const response = await fetch(indexFile, { cache: "no-store" });
+      if (response.ok) {
+        const indexData = await response.json();
+        const entries = normalizeArticleIndexEntries(indexData);
+        if (entries.length) return entries;
+      }
+    } catch (_) {
+    }
+
+    if (typeof DEFAULT_ARTICLE_FILES !== "undefined" && Array.isArray(DEFAULT_ARTICLE_FILES)) {
+      return DEFAULT_ARTICLE_FILES.map((filePath) => ({
+        filePath,
+        id: (String(filePath).split("/").pop() || "").replace(/\.json$/i, "")
+      }));
+    }
+
+    return [];
+  })();
+
+  return articleIndexEntriesPromise;
+}
+
+async function loadPostByFilePath(filePath) {
+  try {
+    const response = await fetch(filePath, { cache: "no-store" });
+    if (!response.ok) return null;
+    const articleData = await response.json();
+    return normalizePost(articleData, filePath);
+  } catch (_) {
+    return null;
+  }
+}
+
 async function loadPosts() {
   const articleFiles = await loadArticleFilesFromIndex();
   const posts = await Promise.all(
-    articleFiles.map(async (filePath) => {
-      try {
-        const response = await fetch(filePath, { cache: "no-store" });
-        if (!response.ok) return null;
-        const articleData = await response.json();
-        return normalizePost(articleData, filePath);
-      } catch (_) {
-        return null;
-      }
-    })
+    articleFiles.map((filePath) => loadPostByFilePath(filePath))
   );
 
   return sortPostsByDateDesc(posts.filter(Boolean));
@@ -356,6 +403,20 @@ async function getPosts() {
     postsCachePromise = loadPosts();
   }
   return postsCachePromise;
+}
+
+async function loadPostById(postId) {
+  const normalizedId = String(postId || "").trim();
+  if (!normalizedId) return null;
+
+  const entries = await loadArticleIndexEntries();
+  const entry = entries.find((item) => item.id === normalizedId);
+  if (entry) {
+    return loadPostByFilePath(entry.filePath);
+  }
+
+  // Backward-compatible fallback when index id and file name are not aligned yet.
+  return loadPostByFilePath(`articles/${normalizedId}.json`);
 }
 
 function showContentLoader(container, message) {
@@ -460,9 +521,8 @@ async function renderPostList() {
   const filterAndRender = (keywordRaw) => {
     const keyword = keywordRaw.trim().toLowerCase();
     const filteredPosts = posts.filter((post) => {
-      const contentText = stripHtml(post.content || "");
-      const combinedText = `${post.title} ${post.summary} ${contentText}`.toLowerCase();
-      return combinedText.includes(keyword);
+      const titleText = String(post.title || "").toLowerCase();
+      return titleText.includes(keyword);
     });
 
     drawList(filteredPosts);
@@ -510,11 +570,9 @@ async function renderPostDetail() {
   const stopLoading = showContentLoader(container, "正在加载文章内容...");
 
   try {
-    const [posts] = await Promise.all([getPosts(), waitForDebugLoading()]);
-
     const params = new URLSearchParams(window.location.search);
     const postId = params.get("id");
-    const post = posts.find((item) => item.id === postId);
+    const [post] = await Promise.all([loadPostById(postId), waitForDebugLoading()]);
 
     if (!post) {
       updatePostNotFoundSeo();
@@ -713,10 +771,26 @@ async function renderHomeFeaturedPost() {
   const container = document.getElementById("homeFeaturedPost");
   if (!container) return;
 
-  const posts = await getPosts();
+  const featuredId = typeof FEATURED_POST_ID === "string" ? FEATURED_POST_ID.trim() : "";
+  const articleEntries = await loadArticleIndexEntries();
 
-  const featuredId = typeof FEATURED_POST_ID === "string" ? FEATURED_POST_ID : "";
-  const featuredPost = posts.find((post) => post.id === featuredId) || posts[0];
+  let featuredPost = null;
+  let fallbackEntry = null;
+
+  if (articleEntries.length) {
+    fallbackEntry = articleEntries[0];
+  }
+
+  if (featuredId) {
+    const featuredEntry = articleEntries.find((entry) => entry.id === featuredId);
+    if (featuredEntry) {
+      featuredPost = await loadPostByFilePath(featuredEntry.filePath);
+    }
+  }
+
+  if (!featuredPost && fallbackEntry) {
+    featuredPost = await loadPostByFilePath(fallbackEntry.filePath);
+  }
 
   if (!featuredPost) {
     container.innerHTML = `

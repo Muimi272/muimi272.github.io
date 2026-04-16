@@ -1,4 +1,16 @@
 [
-  "articles/2.json",
-  "articles/1.json"
+  {
+    "id": "2",
+    "filePath": "articles/2.json",
+    "title": "面向对象编程中继承与组合的权衡与实践选择",
+    "date": "2026-03-31",
+    "summary": "通过 RPG 角色攻击系统的示例，对比继承与组合在灵活性、耦合度、职责划分与扩展成本上的差异，并给出 is-a / has-a 的实践取舍。"
+  },
+  {
+    "id": "1",
+    "filePath": "articles/1.json",
+    "title": "基于 Java 原生 API 的轻量级 XLSX 解析库设计、实现与拓展",
+    "date": "2026-03-31",
+    "summary": "从 OOXML 结构出发，系统拆解仅依赖 Java 标准库的 XLSXLoader：涵盖 ZIP/XML 解析、共享字符串表、状态机读取流程、能力边界与扩展方向。"
+  }
 ]
